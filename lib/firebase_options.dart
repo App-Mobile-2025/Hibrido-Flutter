@@ -41,49 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA5oeOkvUSsgapEVFxLFQ9DrnpAAuYrlSE',
-    appId: '1:17353900917:web:314bf4df4160884583893c',
-    messagingSenderId: '17353900917',
-    projectId: 'reciclapp-hibrido',
-    authDomain: 'reciclapp-hibrido.firebaseapp.com',
-    storageBucket: 'reciclapp-hibrido.firebasestorage.app',
-    measurementId: 'G-R40JVXLKXG',
+    apiKey: 'AIzaSyA-_jZnaDxdSk9mG9S-Ae4jFnbk9Q17cxU',
+    appId: '1:696907067067:web:a96bf88fcc53c26b53839e',
+    messagingSenderId: '696907067067',
+    projectId: 'reciclapp-d79a0',
+    authDomain: 'reciclapp-d79a0.firebaseapp.com',
+    storageBucket: 'reciclapp-d79a0.firebasestorage.app',
+    measurementId: 'G-G0Z3R7RRR1',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBNxJRLWC_F0HLyVHGRx9P7U961SLDSJeM',
-    appId: '1:17353900917:android:72e1a0bc6c20fe9683893c',
-    messagingSenderId: '17353900917',
-    projectId: 'reciclapp-hibrido',
-    storageBucket: 'reciclapp-hibrido.firebasestorage.app',
+    apiKey: 'AIzaSyA9rEjKa2N0uDjSbsUfwb85HU68wkGkbCU',
+    appId: '1:696907067067:android:bb7c4cc89370d57053839e',
+    messagingSenderId: '696907067067',
+    projectId: 'reciclapp-d79a0',
+    storageBucket: 'reciclapp-d79a0.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA9u0XXSxds_tziYIe6fD8N0Hi3Wu1dLM8',
-    appId: '1:17353900917:ios:d3532bac6edd86d483893c',
-    messagingSenderId: '17353900917',
-    projectId: 'reciclapp-hibrido',
-    storageBucket: 'reciclapp-hibrido.firebasestorage.app',
+    apiKey: 'AIzaSyCCCLKAK91Y61FhxSG6eOUB7vvynE-N_e4',
+    appId: '1:696907067067:ios:c8def6481f9b57c153839e',
+    messagingSenderId: '696907067067',
+    projectId: 'reciclapp-d79a0',
+    storageBucket: 'reciclapp-d79a0.firebasestorage.app',
     iosBundleId: 'com.example.reciclapp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA9u0XXSxds_tziYIe6fD8N0Hi3Wu1dLM8',
-    appId: '1:17353900917:ios:d3532bac6edd86d483893c',
-    messagingSenderId: '17353900917',
-    projectId: 'reciclapp-hibrido',
-    storageBucket: 'reciclapp-hibrido.firebasestorage.app',
+    apiKey: 'AIzaSyCCCLKAK91Y61FhxSG6eOUB7vvynE-N_e4',
+    appId: '1:696907067067:ios:c8def6481f9b57c153839e',
+    messagingSenderId: '696907067067',
+    projectId: 'reciclapp-d79a0',
+    storageBucket: 'reciclapp-d79a0.firebasestorage.app',
     iosBundleId: 'com.example.reciclapp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyA5oeOkvUSsgapEVFxLFQ9DrnpAAuYrlSE',
-    appId: '1:17353900917:web:806ac9fa4a8897d283893c',
-    messagingSenderId: '17353900917',
-    projectId: 'reciclapp-hibrido',
-    authDomain: 'reciclapp-hibrido.firebaseapp.com',
-    storageBucket: 'reciclapp-hibrido.firebasestorage.app',
-    measurementId: 'G-77QLDG2MD1',
+    apiKey: 'AIzaSyA-_jZnaDxdSk9mG9S-Ae4jFnbk9Q17cxU',
+    appId: '1:696907067067:web:d66dd5ed6ec0359553839e',
+    messagingSenderId: '696907067067',
+    projectId: 'reciclapp-d79a0',
+    authDomain: 'reciclapp-d79a0.firebaseapp.com',
+    storageBucket: 'reciclapp-d79a0.firebasestorage.app',
+    measurementId: 'G-944YPQ5C2R',
   );
 
 }
