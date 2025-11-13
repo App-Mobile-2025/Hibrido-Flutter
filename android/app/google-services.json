@@ -1,13 +1,32 @@
 {
   "project_info": {
-    "project_number": "17353900917",
-    "project_id": "reciclapp-hibrido",
-    "storage_bucket": "reciclapp-hibrido.firebasestorage.app"
+    "project_number": "696907067067",
+    "project_id": "reciclapp-d79a0",
+    "storage_bucket": "reciclapp-d79a0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:17353900917:android:72e1a0bc6c20fe9683893c",
+        "mobilesdk_app_id": "1:696907067067:android:36d1d8b5a8aa4f2653839e",
+        "android_client_info": {
+          "package_name": "com.appmobile.reciclapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9rEjKa2N0uDjSbsUfwb85HU68wkGkbCU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:696907067067:android:bb7c4cc89370d57053839e",
         "android_client_info": {
           "package_name": "com.example.reciclapp"
         }
@@ -15,7 +34,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBNxJRLWC_F0HLyVHGRx9P7U961SLDSJeM"
+          "current_key": "AIzaSyA9rEjKa2N0uDjSbsUfwb85HU68wkGkbCU"
         }
       ],
       "services": {
