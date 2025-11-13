@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../perfi/perfil_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,10 +11,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
+  final List<Widget> _pages = const [
     Center(child: Text('Inicio')),
     Center(child: Text('Reciclaje')),
-    Center(child: Text('Perfil')),
+    PerfilScreen(),   // <- PERFIL CON LOGOUT
   ];
 
   @override
