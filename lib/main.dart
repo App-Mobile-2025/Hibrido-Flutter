@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:reciclapp/data/services/auth_service.dart';
-import 'package:reciclapp/ui/home/home_screen.dart';
-import 'package:reciclapp/ui/login/login_screen.dart';
-import 'package:reciclapp/ui/home/splash_screen.dart';
+import 'firebase_options.dart';
 
-import 'firebase_options.dart';              // generado por flutterfire
+// TUS PANTALLAS
+import 'package:reciclapp/ui/home/splash_screen.dart';
+import 'package:reciclapp/ui/login/login_screen.dart';
+import 'package:reciclapp/ui/home/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,29 +22,23 @@ class Reciclapp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Reciclapp - Hibrido',
+      title: 'Reciclapp - Híbrido',
+
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      home: StreamBuilder<User?>(
-        stream: authService.authStateChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SplashScreen();
-          }
 
-          if (snapshot.hasData) {
-            return const HomeScreen();
-          } else {
-            return const LoginScreen();
-          }
-        },
-      ),
+      // SIEMPRE INICIA EN EL SPLASH
+      home: const SplashScreen(),
+
+      // Rutas de navegación
+      routes: {
+        "/login": (context) => const LoginScreen(),
+        "/home": (context) => const HomeScreen(),
+      },
     );
   }
 }
