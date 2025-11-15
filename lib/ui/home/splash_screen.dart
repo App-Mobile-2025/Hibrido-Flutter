@@ -27,14 +27,14 @@ class _SplashScreenState extends State<SplashScreen>
       fadeCtrl.forward();
     });
 
-    // Después de 3 segundos → LOGIN
-    Future.delayed(const Duration(seconds: 5), () {
+    // Después de 5 segundos → LOGIN
+    Future.delayed(const Duration(seconds: 4), () {
       Navigator.pushReplacementNamed(context, "/login");
     });
   }
 
   @override
-  void dispose() {
+  void dispose() {  
     fadeCtrl.dispose();
     super.dispose();
   }
@@ -79,10 +79,25 @@ class _SplashScreenState extends State<SplashScreen>
             FadeTransition(
               opacity: fadeCtrl,
               child: const Text(
-                "Desarrollado por Fiorrela, Enzo y Julieta",
+                "Desarrollado por Fiorela, Enzo y Julieta",
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 16,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // Spinner (loading)
+            FadeTransition(
+              opacity: fadeCtrl,
+              child: const SizedBox(
+                width: 28,
+                height: 28,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 3,
                 ),
               ),
             ),
