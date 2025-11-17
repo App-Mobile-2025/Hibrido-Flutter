@@ -28,32 +28,31 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _loading = true);
+  setState(() => _loading = true);
 
-    try {
-      final user = await _authService.login(
-        email: _emailCtrl.text.trim(),
-        password: _passCtrl.text.trim(),
-      );
+  try {
+    final user = await _authService.login(
+      email: _emailCtrl.text.trim(),
+      password: _passCtrl.text.trim(),
+    );
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      if (user != null) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    } finally {
-      if (mounted) setState(() => _loading = false);
+    if (user != null) {
+      Navigator.pushReplacementNamed(context, "/home");
     }
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(e.toString())),
+    );
+  } finally {
+    if (mounted) setState(() => _loading = false);
   }
+}
+
 
   void _goToRegister() {
     Navigator.of(context).push(
