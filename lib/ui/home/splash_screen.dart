@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,17 +25,32 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     Future.delayed(const Duration(milliseconds: 800), () {
-      fadeCtrl.forward();
+      if (mounted) fadeCtrl.forward();
     });
 
-    // Después de 5 segundos → LOGIN
-    Future.delayed(const Duration(seconds: 4), () {
+    // ESTA FUNCIÓN DECIDE HOME o LOGIN
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    // Tiempo para mostrar el splash 
+    await Future.delayed(const Duration(seconds: 2));
+
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (!mounted) return;
+
+    if (user != null) {
+      // YA ESTÁ LOGUEADO → va DIRECTO al HOME
+      Navigator.pushReplacementNamed(context, "/home");
+    } else {
+      // NO ESTÁ LOGUEADO → va al LOGIN
       Navigator.pushReplacementNamed(context, "/login");
-    });
+    }
   }
 
   @override
-  void dispose() {  
+  void dispose() {
     fadeCtrl.dispose();
     super.dispose();
   }
@@ -60,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen>
 
             const SizedBox(height: 20),
 
-            // Fade-in TÍTULO
+            // Fade-in título
             FadeTransition(
               opacity: fadeCtrl,
               child: const Text(
@@ -89,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen>
 
             const SizedBox(height: 30),
 
-            // Spinner (loading)
+            // Spinner
             FadeTransition(
               opacity: fadeCtrl,
               child: const SizedBox(
