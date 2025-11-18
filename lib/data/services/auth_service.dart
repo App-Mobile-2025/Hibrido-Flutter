@@ -14,9 +14,6 @@ class AuthService {
         password: password,
       );
 
-      //verificación por mail
-      // await cred.user?.sendEmailVerification();
-
       return cred.user;
     } on FirebaseAuthException catch (e) {
       throw _mapError(e);
@@ -50,6 +47,53 @@ class AuthService {
 
   // stream de cambios de sesión
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  // usuario actual
+  User? get currentUser => _auth.currentUser;
+
+  // --------------------------------------------------------
+  // EDITAR PERFIL (NOMBRE / EMAIL / CONTRASEÑA)
+  // --------------------------------------------------------
+
+  // Cambiar el nombre visible del usuario
+  Future<void> updateDisplayName(String name) async {
+    try {
+      await _auth.currentUser?.updateDisplayName(name);
+      await _auth.currentUser?.reload();
+    } on FirebaseAuthException catch (e) {
+      throw _mapError(e);
+    }
+  }
+
+  // Cambiar email → envía un mail de verificación al nuevo correo
+  Future<void> updateEmail(String newEmail) async {
+    try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        throw 'No hay usuario logueado.';
+      }
+
+      await user.verifyBeforeUpdateEmail(newEmail);
+
+      // el email se termina de actualizar cuando el usuario
+      // hace clic en el enlace que le llega al NUEVO correo.
+    } on FirebaseAuthException catch (e) {
+      throw _mapError(e);
+    }
+  }
+
+  // Cambiar contraseña
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      await _auth.currentUser?.updatePassword(newPassword);
+      await _auth.currentUser?.reload();
+    } on FirebaseAuthException catch (e) {
+      throw _mapError(e);
+    }
+  }
+
+  // --------------------------------------------------------
 
   String _mapError(FirebaseAuthException e) {
     switch (e.code) {
