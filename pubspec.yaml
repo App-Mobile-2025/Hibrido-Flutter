@@ -12,8 +12,14 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+
+  # Firebase
   firebase_core: ^4.2.1
   firebase_auth: ^6.1.2
+  firebase_storage: ^13.0.4
+
+  # Otras
+  image_picker: ^1.1.2
   lottie: ^3.1.0
 
 dev_dependencies:
@@ -28,6 +34,7 @@ flutter:
   assets:
     - assets/reciclaje.json
     - assets/planeta.png  
+    - assets/fondo_eco.png
 
 flutter_launcher_icons:
   android: true
@@ -37,6 +44,6 @@ flutter_launcher_icons:
   image_path: "assets/planeta.png"
 
   # Para Android adaptive icon
-  adaptive_icon_background: "#4CAF50"   
+  adaptive_icon_background: "#4CAF50"
   adaptive_icon_foreground: "assets/planeta.png"
   min_sdk_android: 21

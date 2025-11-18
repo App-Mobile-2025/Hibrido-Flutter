@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:reciclapp/data/services/auth_service.dart';
+import 'package:reciclapp/data/services/profile_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -11,7 +12,8 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _authService = AuthService();
+  final _authService = AuthService(); 
+  final ProfileService _profileService = ProfileService();
 
   late TextEditingController _nameCtrl;
   late TextEditingController _emailCtrl;
@@ -43,47 +45,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _loading = true);
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw 'No hay usuario logueado.';
-      }
-
-      bool emailChanged = false;
-      String? newEmailForMsg;
-
-      // ---------- NOMBRE ----------
-      final newName = _nameCtrl.text.trim();
-      if (newName.isNotEmpty && newName != (user.displayName ?? '')) {
-        // podés usar tu AuthService si adentro hace esto mismo
-        await user.updateDisplayName(newName);
-      }
-
-      // ---------- EMAIL ----------
-      final newEmail = _emailCtrl.text.trim();
-      if (newEmail.isNotEmpty && newEmail != (user.email ?? '')) {
-        await user.verifyBeforeUpdateEmail(newEmail);
-        emailChanged = true;
-        newEmailForMsg = newEmail;
-      }
-
-      // ---------- CONTRASEÑA ----------
-      if (_newPassCtrl.text.isNotEmpty) {
-        if (_newPassCtrl.text != _confirmPassCtrl.text) {
-          throw 'Las contraseñas no coinciden.';
-        }
-        await user.updatePassword(_newPassCtrl.text.trim());
-      }
-
-      // Esto fuerza a Firebase a recargar los datos del usuario
-      await user.reload();
+      final result = await _profileService.updateProfile(
+        name: _nameCtrl.text,
+        email: _emailCtrl.text,
+        newPassword: _newPassCtrl.text,
+        confirmPassword: _confirmPassCtrl.text,
+      );
 
       if (!mounted) return;
 
-      if (emailChanged && newEmailForMsg != null) {
+      if (result.emailChanged && result.newEmail != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Te enviamos un correo a $newEmailForMsg para confirmar el cambio de email.',
+              'Te enviamos un correo a ${result.newEmail} para confirmar el cambio de email.',
             ),
           ),
         );
@@ -100,9 +75,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         SnackBar(content: Text(e.toString())),
       );
     } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-      }
+      if (!mounted) return;
+      setState(() => _loading = false);
     }
   }
 
