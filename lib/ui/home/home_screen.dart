@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../perfil/perfil_screen.dart';
+import 'package:reciclapp/ui/gestion/gestion_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,19 +12,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    SizedBox.shrink(), // Dashboard cuando index = 0
-    Center(child: Text('Registrar Reciclaje')),
-    Center(child: Text('Gestión de Reciclaje')),
-    Center(child: Text('Canje')),
-    PerfilScreen(),
-    Center(child: Text('Configuración')),
+  // LISTA DE PÁGINAS
+  final List<Widget> _pages = [
+    const SizedBox.shrink(),      
+    const Center(child: Text('Registrar Reciclaje')),
+    GestionScreen(),                
+    const Center(child: Text('Canje')),
+    const PerfilScreen(),
+    const Center(child: Text('Configuración')),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F5E9), // Verde suave
+      backgroundColor: const Color(0xFFE8F5E9),
       appBar: AppBar(
         title: const Text('ReciclApp'),
         automaticallyImplyLeading: false,
@@ -38,30 +40,12 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Inicio',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.recycling),
-            label: 'Registrar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
-            label: 'Gestión',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.card_giftcard),
-            label: 'Canje',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Config',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
+          BottomNavigationBarItem(icon: Icon(Icons.recycling), label: 'Registrar'),
+          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Gestión'),
+          BottomNavigationBarItem(icon: Icon(Icons.card_giftcard), label: 'Canje'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Config'),
         ],
       ),
     );
@@ -167,14 +151,12 @@ class _HomeOptionCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // CÍRCULO CON SOMBRA PARA EL ICONO
             Container(
               width: 56,
               height: 56,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.green.shade50,
-
                 boxShadow: [
                   BoxShadow(
                     color: Colors.green.withOpacity(0.25),
