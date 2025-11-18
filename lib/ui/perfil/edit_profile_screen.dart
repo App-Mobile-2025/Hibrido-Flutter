@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:reciclapp/data/services/profile_service.dart';
+import 'package:reciclapp/ui/perfil/view_model/edit_profile_controller.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -12,7 +12,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _profileService = ProfileService();
+  final EditProfileController _controller = EditProfileController();
 
   late TextEditingController _nameCtrl;
   late TextEditingController _lastnameCtrl;
@@ -22,6 +22,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool _saving = false;
   bool _loadingProfile = true;
+
+  EditProfileData? _profileData;
 
   @override
   void initState() {
@@ -33,33 +35,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _loadProfile() async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      setState(() => _loadingProfile = false);
-      return;
-    }
-
     try {
-      final data = await _profileService.getUserProfile();
+      final data = await _controller.loadProfileData();
+
+      if (!mounted) return;
+
+      _profileData = data;
 
       if (data != null) {
-        _nameCtrl.text = (data['name'] ?? '').toString();
-        _lastnameCtrl.text = (data['lastname'] ?? '').toString();
-        _emailCtrl.text =
-            (data['email'] ?? user.email ?? '').toString();
-      } else {
-        // Fallback si no hay doc en Firestore
-        final displayName = user.displayName ?? '';
-        if (displayName.contains(' ')) {
-          final parts = displayName.split(' ');
-          _nameCtrl.text = parts.first;
-          _lastnameCtrl.text = parts.sublist(1).join(' ');
-        } else {
-          _nameCtrl.text = displayName;
-          _lastnameCtrl.text = '';
-        }
-        _emailCtrl.text = user.email ?? '';
+        _nameCtrl.text = data.name;
+        _lastnameCtrl.text = data.lastname;
+        _emailCtrl.text = data.email;
       }
     } finally {
       if (mounted) {
@@ -101,8 +87,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         confirmToSend = confirmPass;
       }
 
-      // Usamos el ProfileService centralizado
-      final result = await _profileService.updateProfile(
+      final result = await _controller.updateProfile(
         name: name,
         lastname: lastname,
         email: email,
@@ -114,8 +99,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       var msg = 'Perfil actualizado correctamente.';
       if (result.emailChanged && result.newEmail != null) {
-        msg +=
-            '\nRevisá ${{result.newEmail}} para confirmar el cambio de correo.';
+        msg += '\nRevisá ${result.newEmail} para confirmar el cambio de correo.';
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -138,14 +122,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Editar perfil'),
-          ),
+        ),
         body: const Center(
-          child: CircularProgressIndicator()
-          ),
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
-    final user = FirebaseAuth.instance.currentUser;
+    final data = _profileData;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Editar perfil')),
@@ -154,21 +138,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: Column(
           children: [
             // Avatar + nombre completo
-            if (user != null)
+            if (data != null)
               Column(
                 children: [
                   CircleAvatar(
                     radius: 45,
-                    backgroundImage: (user.photoURL != null)
-                        ? NetworkImage(user.photoURL!)
+                    backgroundImage: (data.photoUrl != null)
+                        ? NetworkImage(data.photoUrl!)
                         : null,
-                    child: (user.photoURL == null)
+                    child: (data.photoUrl == null)
                         ? const Icon(Icons.person, size: 48)
                         : null,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${_nameCtrl.text} ${_lastnameCtrl.text}',
+                    data.fullName,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
