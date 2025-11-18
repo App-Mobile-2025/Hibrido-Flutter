@@ -74,7 +74,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await user.updatePassword(_newPassCtrl.text.trim());
       }
 
-      // 👇 Esto fuerza a Firebase a recargar los datos del usuario
+      // Esto fuerza a Firebase a recargar los datos del usuario
       await user.reload();
 
       if (!mounted) return;

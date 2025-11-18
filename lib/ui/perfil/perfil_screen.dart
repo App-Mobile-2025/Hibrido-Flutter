@@ -9,7 +9,7 @@ class PerfilScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      // 👇 Este stream emite también cuando cambia displayName / email
+      // Este stream emite también cuando cambia displayName / email
       stream: FirebaseAuth.instance.userChanges(),
       builder: (context, snapshot) {
         final user = snapshot.data;
