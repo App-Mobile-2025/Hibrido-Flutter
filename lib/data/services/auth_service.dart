@@ -1,26 +1,48 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // registro
-  Future<User?> register({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      final cred = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+Future<User?> register({
+  required String email,
+  required String password,
+  required String name,
+  required String lastname,
+}) async {
+  try {
+    final cred = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-      return cred.user;
-    } on FirebaseAuthException catch (e) {
-      throw _mapError(e);
-    } catch (e) {
-      throw 'Error inesperado: $e';
-    }
+    final fullName = "$name $lastname";
+
+    // Guardar displayName en Firebase Auth
+    await cred.user?.updateDisplayName(fullName);
+    await cred.user?.reload();
+
+    // Guardar en Firestore (colección "users")
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(cred.user!.uid)
+        .set({
+      "uid": cred.user!.uid,
+      "name": name,
+      "lastname": lastname,
+      "email": email,
+      "createdAt": FieldValue.serverTimestamp(),
+    });
+
+    return cred.user;
+  } on FirebaseAuthException catch (e) {
+    throw _mapError(e);
+  } catch (e) {
+    throw 'Error inesperado: $e';
   }
+}
+
 
   // login
   Future<User?> login({

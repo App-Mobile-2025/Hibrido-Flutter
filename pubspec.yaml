@@ -39,6 +39,8 @@ flutter:
     - assets/reciclaje.json
     - assets/planeta.png
     - assets/fondo_eco.png
+    - assets/login.json
+    - assets/register.json
 
 flutter_launcher_icons:
   android: true

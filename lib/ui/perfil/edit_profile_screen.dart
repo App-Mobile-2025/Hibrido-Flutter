@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:reciclapp/data/services/auth_service.dart';
+
 import 'package:reciclapp/data/services/profile_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -12,180 +12,264 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _authService = AuthService(); 
-  final ProfileService _profileService = ProfileService();
+  final _profileService = ProfileService();
 
   late TextEditingController _nameCtrl;
+  late TextEditingController _lastnameCtrl;
   late TextEditingController _emailCtrl;
   final TextEditingController _newPassCtrl = TextEditingController();
   final TextEditingController _confirmPassCtrl = TextEditingController();
 
-  bool _loading = false;
+  bool _saving = false;
+  bool _loadingProfile = true;
 
   @override
   void initState() {
     super.initState();
+    _nameCtrl = TextEditingController();
+    _lastnameCtrl = TextEditingController();
+    _emailCtrl = TextEditingController();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
     final user = FirebaseAuth.instance.currentUser;
-    _nameCtrl = TextEditingController(text: user?.displayName ?? '');
-    _emailCtrl = TextEditingController(text: user?.email ?? '');
+
+    if (user == null) {
+      setState(() => _loadingProfile = false);
+      return;
+    }
+
+    try {
+      final data = await _profileService.getUserProfile();
+
+      if (data != null) {
+        _nameCtrl.text = (data['name'] ?? '').toString();
+        _lastnameCtrl.text = (data['lastname'] ?? '').toString();
+        _emailCtrl.text =
+            (data['email'] ?? user.email ?? '').toString();
+      } else {
+        // Fallback si no hay doc en Firestore
+        final displayName = user.displayName ?? '';
+        if (displayName.contains(' ')) {
+          final parts = displayName.split(' ');
+          _nameCtrl.text = parts.first;
+          _lastnameCtrl.text = parts.sublist(1).join(' ');
+        } else {
+          _nameCtrl.text = displayName;
+          _lastnameCtrl.text = '';
+        }
+        _emailCtrl.text = user.email ?? '';
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loadingProfile = false);
+      }
+    }
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _lastnameCtrl.dispose();
     _emailCtrl.dispose();
     _newPassCtrl.dispose();
     _confirmPassCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _saveChanges() async {
+  Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _loading = true);
+    setState(() => _saving = true);
 
     try {
+      final name = _nameCtrl.text.trim();
+      final lastname = _lastnameCtrl.text.trim();
+      final email = _emailCtrl.text.trim();
+      final newPass = _newPassCtrl.text.trim();
+      final confirmPass = _confirmPassCtrl.text.trim();
+
+      // Si alguno de los campos de pass está cargado, exigimos ambos
+      String? passToSend;
+      String? confirmToSend;
+      if (newPass.isNotEmpty || confirmPass.isNotEmpty) {
+        if (newPass != confirmPass) {
+          throw Exception('Las contraseñas nuevas no coinciden.');
+        }
+        passToSend = newPass;
+        confirmToSend = confirmPass;
+      }
+
+      // Usamos el ProfileService centralizado
       final result = await _profileService.updateProfile(
-        name: _nameCtrl.text,
-        email: _emailCtrl.text,
-        newPassword: _newPassCtrl.text,
-        confirmPassword: _confirmPassCtrl.text,
+        name: name,
+        lastname: lastname,
+        email: email,
+        newPassword: passToSend,
+        confirmPassword: confirmToSend,
       );
 
       if (!mounted) return;
 
+      var msg = 'Perfil actualizado correctamente.';
       if (result.emailChanged && result.newEmail != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Te enviamos un correo a ${result.newEmail} para confirmar el cambio de email.',
-            ),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil actualizado correctamente.')),
-        );
+        msg +=
+            '\nRevisá ${{result.newEmail}} para confirmar el cambio de correo.';
       }
 
-      Navigator.of(context).pop(); // Volver al perfil
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+      Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
       );
     } finally {
-      if (!mounted) return;
-      setState(() => _loading = false);
+      if (mounted) setState(() => _saving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_loadingProfile) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Editar perfil'),
+          ),
+        body: const Center(
+          child: CircularProgressIndicator()
+          ),
+      );
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F5E9),
-      appBar: AppBar(
-        title: const Text('Editar perfil'),
-      ),
+      appBar: AppBar(title: const Text('Editar perfil')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-
-              // Nombre
-              TextFormField(
-                controller: _nameCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre',
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Email
-              TextFormField(
-                controller: _emailCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Correo electrónico',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'El correo no puede estar vacío.';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Ingrese un correo válido.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
-                  Icon(Icons.lock_outline, size: 20, color: Colors.grey),
-                  SizedBox(width: 8),
+        child: Column(
+          children: [
+            // Avatar + nombre completo
+            if (user != null)
+              Column(
+                children: [
+                  CircleAvatar(
+                    radius: 45,
+                    backgroundImage: (user.photoURL != null)
+                        ? NetworkImage(user.photoURL!)
+                        : null,
+                    child: (user.photoURL == null)
+                        ? const Icon(Icons.person, size: 48)
+                        : null,
+                  ),
+                  const SizedBox(height: 8),
                   Text(
-                    'Cambiar contraseña (opcional)',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey,
+                    '${_nameCtrl.text} ${_lastnameCtrl.text}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  // Nombre
+                  TextFormField(
+                    controller: _nameCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre',
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                    textCapitalization: TextCapitalization.words,
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty)
+                            ? 'Ingresá tu nombre'
+                            : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Apellido
+                  TextFormField(
+                    controller: _lastnameCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Apellido',
+                      prefixIcon: Icon(Icons.badge),
+                    ),
+                    textCapitalization: TextCapitalization.words,
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty)
+                            ? 'Ingresá tu apellido'
+                            : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Email
+                  TextFormField(
+                    controller: _emailCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Correo',
+                      prefixIcon: Icon(Icons.email),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Ingresá tu correo';
+                      }
+                      if (!v.contains('@')) return 'Correo inválido';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Nueva contraseña
+                  TextFormField(
+                    controller: _newPassCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Nueva contraseña (opcional)',
+                      prefixIcon: Icon(Icons.lock),
+                    ),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Confirmar nueva contraseña
+                  TextFormField(
+                    controller: _confirmPassCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Repetir nueva contraseña',
+                      prefixIcon: Icon(Icons.lock_outline),
+                    ),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: _saving ? null : _saveProfile,
+                      child: _saving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Guardar cambios'),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-
-              TextFormField(
-                controller: _newPassCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Nueva contraseña',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty && value.length < 6) {
-                    return 'La contraseña debe tener al menos 6 caracteres.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-
-              TextFormField(
-                controller: _confirmPassCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Confirmar nueva contraseña',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-
-              const SizedBox(height: 28),
-
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: _loading ? null : _saveChanges,
-                  icon: _loading
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.save),
-                  label: Text(_loading ? 'Guardando...' : 'Guardar cambios'),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
