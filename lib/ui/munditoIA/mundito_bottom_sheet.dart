@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reciclapp/data/services/mundito_service.dart'; 
+import 'package:reciclapp/data/services/mundito_service.dart'; // ajustá el path si hace falta
 
 class MunditoBottomSheet extends StatefulWidget {
   const MunditoBottomSheet({super.key});
@@ -11,12 +11,18 @@ class MunditoBottomSheet extends StatefulWidget {
 class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
   final TextEditingController _questionCtrl = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final DraggableScrollableController _dragController =
+      DraggableScrollableController();
 
   final MunditoService _munditoService = MunditoService();
 
-  String _answer =
-      'Hola, soy Mundito 🌎. ¿En qué te ayudo con el reciclaje hoy?';
   bool _loading = false;
+
+  // Historial compartido entre TODAS las aperturas de Mundito
+  static final List<_ChatMessage> _history = [];
+
+  // referencia práctica al historial
+  late final List<_ChatMessage> _messages;
 
   final List<String> _faqs = const [
     '¿Cómo registro un residuo en la app?',
@@ -26,16 +32,38 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
     'Tengo un problema al subir una evidencia',
   ];
 
-  /// Helper para evitar repetir mounted checks
   void _safeSetState(VoidCallback fn) {
     if (!mounted) return;
     setState(fn);
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    _messages = _history;
+
+    // Primer saludo
+    if (_messages.isEmpty) {
+      _messages.add(
+        const _ChatMessage(
+          text: 'Hola, soy Mundito 🌎. ¿En qué te ayudo con el reciclaje hoy?',
+          fromUser: false,
+        ),
+      );
+    }
+
+    // Al abrir, scrolleo al final
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+  }
+
+  @override
   void dispose() {
     _questionCtrl.dispose();
     _scrollController.dispose();
+    _dragController.dispose();
     super.dispose();
   }
 
@@ -45,32 +73,53 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
 
     _safeSetState(() {
       _loading = true;
-      // ya no pisamos el mensaje mientras piensa, solo mostramos el overlay
-      // _answer = '...';
+      _messages.add(
+        _ChatMessage(
+          text: query,
+          fromUser: true,
+        ),
+      );
     });
+
+    // Cuando el usuario manda una pregunta, agrandamos el sheet casi a full
+    if (_dragController.isAttached) {
+      _dragController.animateTo(
+        0.99, // 99% de alto
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    }
+
+    _scrollToBottom();
 
     try {
       final resp = await _munditoService.askMundito(query);
 
       if (!mounted) return;
 
-      _safeSetState(() => _answer = resp);
-
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      if (!mounted) return;
-
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeOut,
+      _safeSetState(() {
+        _messages.add(
+          _ChatMessage(
+            text: resp,
+            fromUser: false,
+          ),
         );
-      }
+      });
+
+      _scrollToBottom();
     } finally {
       if (!mounted) return;
       _safeSetState(() => _loading = false);
     }
+  }
+
+  void _scrollToBottom() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -78,9 +127,10 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
     final tema = Theme.of(context);
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.80,
-      minChildSize: 0.50,
-      maxChildSize: 0.95,
+      controller: _dragController,
+      initialChildSize: 0.80, // 👉 ya arranca bien grande
+      minChildSize: 0.55,
+      maxChildSize: 0.98, // 👉 casi full screen
       builder: (context, scrollController) {
         return Container(
           decoration: const BoxDecoration(
@@ -237,7 +287,7 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
 
               const SizedBox(height: 12),
 
-              // Respuesta (burbuja + overlay de carga)
+              // Zona de chat + overlay
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -248,36 +298,79 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
                   padding: const EdgeInsets.all(12),
                   child: Stack(
                     children: [
-                      // Contenido scrollable con burbuja
-                      SingleChildScrollView(
+                      // Lista de mensajes
+                      ListView.builder(
                         controller: _scrollController,
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            margin: const EdgeInsets.only(right: 40),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF064E3B),
-                              borderRadius: BorderRadius.circular(16),
+                        itemCount: _messages.length,
+                        padding: const EdgeInsets.only(bottom: 16, top: 8),
+                        itemBuilder: (context, index) {
+                          final msg = _messages[index];
+                          final isUser = msg.fromUser;
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              mainAxisAlignment: isUser
+                                  ? MainAxisAlignment.end
+                                  : MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (!isUser) ...[
+                                  CircleAvatar(
+                                    radius: 14,
+                                    backgroundColor: const Color(0xFF064E3B),
+                                    backgroundImage: const AssetImage(
+                                      'assets/mundito_icon_v2.png',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                ],
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isUser
+                                          ? const Color(0xFF16A34A)
+                                          : const Color(0xFF064E3B),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: const Radius.circular(16),
+                                        topRight: const Radius.circular(16),
+                                        bottomLeft: Radius.circular(
+                                          isUser ? 16 : 4,
+                                        ),
+                                        bottomRight: Radius.circular(
+                                          isUser ? 4 : 16,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      msg.text,
+                                      style: TextStyle(
+                                        color: isUser
+                                            ? Colors.white
+                                            : const Color(0xFFC8FACC),
+                                        fontSize: 14,
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (isUser) const SizedBox(width: 4),
+                              ],
                             ),
-                            child: SelectableText(
-                              _answer,
-                              style: const TextStyle(
-                                color: Color(0xFFC8FACC),
-                                fontSize: 14,
-                                height: 1.4,
-                              ),
-                            ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
 
-                      // Overlay de "pensando"
+                      // Overlay "pensando"
                       if (_loading)
                         Align(
                           alignment: Alignment.topCenter,
                           child: Container(
-                            margin: const EdgeInsets.only(top: 10),
+                            margin: const EdgeInsets.only(top: 4),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 14,
                               vertical: 8,
@@ -321,4 +414,15 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
       },
     );
   }
+}
+
+// Modelo de mensaje
+class _ChatMessage {
+  final String text;
+  final bool fromUser;
+
+  const _ChatMessage({
+    required this.text,
+    required this.fromUser,
+  });
 }
