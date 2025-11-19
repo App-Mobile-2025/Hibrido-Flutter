@@ -82,13 +82,14 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
     });
 
     // Cuando el usuario manda una pregunta, agrandamos el sheet casi a full
-    if (_dragController.isAttached) {
-      _dragController.animateTo(
-        0.99, // 99% de alto
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-    }
+    try {
+    _dragController.animateTo(
+      0.99,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  } catch (_) {}
+
 
     _scrollToBottom();
 
@@ -126,11 +127,13 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
   Widget build(BuildContext context) {
     final tema = Theme.of(context);
 
-    return DraggableScrollableSheet(
+    return SafeArea(
+    top: false,          // dejamos que llegue arriba del todo
+    child: DraggableScrollableSheet(
       controller: _dragController,
-      initialChildSize: 0.80, // 👉 ya arranca bien grande
+      initialChildSize: 0.80,
       minChildSize: 0.55,
-      maxChildSize: 0.98, // 👉 casi full screen
+      maxChildSize: 0.98,
       builder: (context, scrollController) {
         return Container(
           decoration: const BoxDecoration(
@@ -225,69 +228,7 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
 
               const SizedBox(height: 16),
 
-              // Campo de pregunta
-              TextField(
-                controller: _questionCtrl,
-                maxLines: 3,
-                minLines: 1,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFF022C22),
-                  hintText: 'Escribí tu pregunta para Mundito...',
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Colors.greenAccent),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Botón enviar
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: _loading
-                          ? null
-                          : () async {
-                              final q = _questionCtrl.text;
-                              _questionCtrl.clear();
-                              await _handleQuestion(q);
-                            },
-                      icon: const Icon(Icons.send),
-                      label: Text(
-                        _loading ? 'Pensando...' : 'Preguntar a Mundito',
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF16A34A),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // Zona de chat + overlay
+              // 🟢 Zona de chat (gran parte de la pantalla)
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -408,11 +349,70 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 10),
+
+              //  Campo de pregunta (debajo del chat)
+              TextField(
+                controller: _questionCtrl,
+                maxLines: 3,
+                minLines: 1,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFF022C22),
+                  hintText: 'Escribí tu pregunta para Mundito...',
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Colors.white24),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Colors.greenAccent),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              // Botón debajo del campo de texto
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _loading
+                      ? null
+                      : () async {
+                          final q = _questionCtrl.text;
+                          _questionCtrl.clear();
+                          await _handleQuestion(q);
+                        },
+                  icon: const Icon(Icons.send),
+                  label: Text(
+                    _loading ? 'Pensando...' : 'Preguntar a Mundito',
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF16A34A),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );
       },
-    );
+    ));
   }
 }
 
