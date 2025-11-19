@@ -13,7 +13,8 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
   final TextEditingController _questionCtrl = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  String _answer = 'Hola, soy Mundito 🌎. ¿En qué te ayudo con el reciclaje hoy?';
+  String _answer =
+      'Hola, soy Mundito 🌎. ¿En qué te ayudo con el reciclaje hoy?';
   bool _loading = false;
 
   final List<String> _faqs = const [
@@ -23,6 +24,12 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
     '¿Cómo edito mis datos de perfil?',
     'Tengo un problema al subir una evidencia',
   ];
+
+  /// Helper para evitar repetir mounted checks
+  void _safeSetState(VoidCallback fn) {
+    if (!mounted) return;
+    setState(fn);
+  }
 
   @override
   void dispose() {
@@ -35,18 +42,22 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
     final query = text.trim();
     if (query.isEmpty) return;
 
-    setState(() {
+    _safeSetState(() {
       _loading = true;
-      _answer = 'Generando sugerencia ecológica...\n\nMundito está pensando 🤔';
+      //_answer = 'Generando sugerencia ecológica...\n\nMundito está pensando 🤔';
     });
 
     try {
       final resp = await _askMundito(query);
-      setState(() {
-        _answer = resp;
-      });
+
+      if (!mounted) return;
+
+      _safeSetState(() => _answer = resp);
 
       await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return;
+
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
@@ -55,19 +66,19 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
         );
       }
     } finally {
-      setState(() => _loading = false);
+      if (!mounted) return;
+      _safeSetState(() => _loading = false);
     }
   }
 
-  // Versión real conectada a Gemini vía Firebase AI
-Future<String> _askMundito(String question) async {
-  if (question.trim().isEmpty) {
-    return 'Escribí una pregunta para que pueda ayudarte 🌎';
-  }
+  // IA: Gemini 2.5 Flash con Firebase AI
+  Future<String> _askMundito(String question) async {
+    if (question.trim().isEmpty) {
+      return 'Escribí una pregunta para que pueda ayudarte 🌎';
+    }
 
-  try {
-    // Definimos el "rol" de Mundito (similar al nativo)
-    const systemPrompt = '''
+    try {
+      const systemPrompt = '''
 Sos Mundito, el asistente ecológico de la app ReciclApp para Argentina.
 Tu estilo es:
 - Claro, cortito y en español neutro tirando a argentino.
@@ -78,40 +89,35 @@ Si la pregunta no tiene nada que ver con reciclaje, medioambiente o el uso de la
 respondé igual pero tratando de llevar la respuesta a un enfoque ecológico o de uso de ReciclApp.
 ''';
 
-    final userPrompt = '''
+      final userPrompt = '''
 Usuario: $question
 
 Respondé como Mundito con un párrafo corto y, si podés, con 1 o 2 bullets simples.
 ''';
 
-    final fullPrompt = '$systemPrompt\n\n$userPrompt';
+      final fullPrompt = '$systemPrompt\n\n$userPrompt';
 
-    // Obtenemos instancia de Firebase AI usando Vertex AI (igual que en Android)
-    final ai = FirebaseAI.vertexAI(auth: FirebaseAuth.instance);
+      final ai = FirebaseAI.vertexAI(auth: FirebaseAuth.instance);
 
-    // Elegimos el modelo
-    final model = ai.generativeModel(
-      model: 'gemini-2.5-flash',
-    );
+      final model = ai.generativeModel(
+        model: 'gemini-2.5-flash',
+      );
 
-    // Llamamos a la IA
-    final response = await model.generateContent(
-      [Content.text(fullPrompt)],
-    );
+      final response = await model.generateContent(
+        [Content.text(fullPrompt)],
+      );
 
-    final text = response.text;
+      final text = response.text;
 
-    if (text == null || text.trim().isEmpty) {
-      return 'Por ahora no tengo datos suficientes para responder eso 🌎. Probá reformular la pregunta.';
+      if (text == null || text.trim().isEmpty) {
+        return 'Por ahora no tengo datos suficientes para responder eso 🌎. Probá reformular la pregunta.';
+      }
+
+      return text.trim();
+    } catch (e) {
+      return 'Ups, tuve un problema al conectarme con la IA 😕. Verificá tu conexión y probá de nuevo.';
     }
-
-    return text.trim();
-  } catch (e) {
-    // debugPrint('Error Mundito IA: $e');
-    return 'Ups, tuve un problema al conectarme con la IA 😕. Verificá tu conexión y probá de nuevo.';
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -130,6 +136,7 @@ Respondé como Mundito con un párrafo corto y, si podés, con 1 o 2 bullets sim
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           child: Column(
             children: [
+              // Handle del sheet
               Container(
                 width: 40,
                 height: 4,
@@ -145,23 +152,21 @@ Respondé como Mundito con un párrafo corto y, si podés, con 1 o 2 bullets sim
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: 64,
-                    height: 64,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
+                    width: 95,
+                    height: 74,
+                    decoration: const BoxDecoration(shape: BoxShape.circle),
                     child: ClipOval(
                       child: Image.asset(
-                        'assets/mundito_icon.png',
+                        'assets/mundito_icon_v2.png',
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           'Mundito - Asistente Eco IA',
                           style: TextStyle(
@@ -239,13 +244,16 @@ Respondé como Mundito con un párrafo corto y, si podés, con 1 o 2 bullets sim
                     borderRadius: BorderRadius.circular(18),
                     borderSide: const BorderSide(color: Colors.greenAccent),
                   ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                 ),
               ),
 
               const SizedBox(height: 8),
 
+              // Botón enviar
               Row(
                 children: [
                   Expanded(
@@ -258,7 +266,8 @@ Respondé como Mundito con un párrafo corto y, si podés, con 1 o 2 bullets sim
                               await _handleQuestion(q);
                             },
                       icon: const Icon(Icons.send),
-                      label: Text(_loading ? 'Pensando...' : 'Preguntar a Mundito'),
+                      label: Text(
+                          _loading ? 'Pensando...' : 'Preguntar a Mundito'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF16A34A),
                         foregroundColor: Colors.white,
@@ -273,7 +282,7 @@ Respondé como Mundito con un párrafo corto y, si podés, con 1 o 2 bullets sim
 
               const SizedBox(height: 12),
 
-              // Respuesta
+              // Respuesta (burbuja + overlay de carga)
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -282,16 +291,71 @@ Respondé como Mundito con un párrafo corto y, si podés, con 1 o 2 bullets sim
                     borderRadius: BorderRadius.circular(18),
                   ),
                   padding: const EdgeInsets.all(12),
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: SelectableText(
-                      _answer,
-                      style: const TextStyle(
-                        color: Color(0xFFC8FACC),
-                        fontSize: 14,
-                        height: 1.4,
+                  child: Stack(
+                    children: [
+                      // Contenido scrollable con burbuja
+                      SingleChildScrollView(
+                        controller: _scrollController,
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            margin: const EdgeInsets.only(right: 40),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF064E3B),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: SelectableText(
+                              _answer,
+                              style: const TextStyle(
+                                color: Color(0xFFC8FACC),
+                                fontSize: 14,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+
+                      // Overlay de "pensando"
+                      if (_loading)
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: Container(
+                            margin: const EdgeInsets.only(top: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.40),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Mundito está pensando...',
+                                  style: TextStyle(
+                                    color: Color(0xFFC8FACC),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),

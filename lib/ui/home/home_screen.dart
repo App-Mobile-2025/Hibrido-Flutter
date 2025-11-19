@@ -63,9 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.green.shade600,
         icon: ClipOval(
           child: Image.asset(
-            'assets/mundito_icon.png',
-            width: 28,
-            height: 28,
+            'assets/mundito_icon_v2.png',
+            width: 48,
+            height: 48,
             fit: BoxFit.cover,
           ),
         ),

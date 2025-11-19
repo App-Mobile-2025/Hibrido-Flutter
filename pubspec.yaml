@@ -52,6 +52,7 @@ flutter:
     - assets/login.json
     - assets/register.json
     - assets/mundito_icon.png
+    - assets/mundito_icon_v2.png
     - assets/model.tflite
     - assets/labels.txt
 
