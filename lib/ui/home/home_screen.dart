@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reciclapp/ui/home/view_model/mundito_bottom_sheet.dart';
+import 'package:reciclapp/ui/munditoIA/mundito_bottom_sheet.dart';
 import '../perfil/perfil_screen.dart';
 import 'package:reciclapp/ui/gestion/gestion_screen.dart';
 import '../register/registrar_reciclaje_screen.dart'; 
