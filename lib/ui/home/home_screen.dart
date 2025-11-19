@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reciclapp/ui/home/view_model/mundito_bottom_sheet.dart';
+import 'package:reciclapp/ui/munditoIA/mundito_bottom_sheet.dart';
 import '../perfil/perfil_screen.dart';
 import 'package:reciclapp/ui/gestion/gestion_screen.dart';
 import '../register/registrar_reciclaje_screen.dart'; 
@@ -63,9 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.green.shade600,
         icon: ClipOval(
           child: Image.asset(
-            'assets/mundito_icon.png',
-            width: 28,
-            height: 28,
+            'assets/mundito_icon_v2.png',
+            width: 48,
+            height: 48,
             fit: BoxFit.cover,
           ),
         ),
