@@ -1,0 +1,6 @@
+glass
+metal
+plastic
+papel
+no reciclable
+organico

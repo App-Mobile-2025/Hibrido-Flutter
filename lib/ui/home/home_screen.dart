@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:reciclapp/ui/home/view_model/mundito_bottom_sheet.dart';
 import '../perfil/perfil_screen.dart';
 import 'package:reciclapp/ui/gestion/gestion_screen.dart';
+import '../register/registrar_reciclaje_screen.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,9 +16,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // LISTA DE PÁGINAS
   final List<Widget> _pages = [
-    const SizedBox.shrink(),
-    const Center(child: Text('Registrar Reciclaje')),
-    GestionScreen(),
+
+    const SizedBox.shrink(),      
+    const RegistrarReciclajeScreen(),
+    GestionScreen(),                
     const Center(child: Text('Canje')),
     const PerfilScreen(),
     const Center(child: Text('Configuración')),
