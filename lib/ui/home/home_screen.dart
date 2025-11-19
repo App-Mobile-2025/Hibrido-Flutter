@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../perfil/perfil_screen.dart';
 import 'package:reciclapp/ui/gestion/gestion_screen.dart';
+import '../register/registrar_reciclaje_screen.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // LISTA DE PÁGINAS
   final List<Widget> _pages = [
     const SizedBox.shrink(),      
-    const Center(child: Text('Registrar Reciclaje')),
+    const RegistrarReciclajeScreen(),
     GestionScreen(),                
     const Center(child: Text('Canje')),
     const PerfilScreen(),
