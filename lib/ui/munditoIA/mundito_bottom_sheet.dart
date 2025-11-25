@@ -12,7 +12,6 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
   final DraggableScrollableController _dragController =
       DraggableScrollableController();
 
-  // Este controller ahora lo vamos a tomar del builder
   ScrollController? _chatScrollController;
 
   final MunditoService _munditoService = MunditoService();
