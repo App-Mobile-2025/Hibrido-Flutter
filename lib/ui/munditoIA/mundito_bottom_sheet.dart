@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reciclapp/data/services/mundito_service.dart'; // ajustá el path si hace falta
-
+import 'package:reciclapp/data/services/mundito_service.dart';
 class MunditoBottomSheet extends StatefulWidget {
   const MunditoBottomSheet({super.key});
 
@@ -10,23 +9,23 @@ class MunditoBottomSheet extends StatefulWidget {
 
 class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
   final TextEditingController _questionCtrl = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
   final DraggableScrollableController _dragController =
       DraggableScrollableController();
+
+  // Este controller ahora lo vamos a tomar del builder
+  ScrollController? _chatScrollController;
 
   final MunditoService _munditoService = MunditoService();
 
   bool _loading = false;
+  bool _isMaximized = false; // para saber si está a pantalla completa
 
-  // Historial compartido entre TODAS las aperturas de Mundito
   static final List<_ChatMessage> _history = [];
 
-  // referencia práctica al historial
   late final List<_ChatMessage> _messages;
 
   final List<String> _faqs = const [
     '¿Cómo registro un residuo en la app?',
-    '¿Dónde veo los ecopuntos cercanos?',
     '¿Cómo canjeo mis puntos por premios?',
     '¿Cómo edito mis datos de perfil?',
     'Tengo un problema al subir una evidencia',
@@ -62,7 +61,6 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
   @override
   void dispose() {
     _questionCtrl.dispose();
-    _scrollController.dispose();
     _dragController.dispose();
     super.dispose();
   }
@@ -82,15 +80,7 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
     });
 
     // Cuando el usuario manda una pregunta, agrandamos el sheet casi a full
-    try {
-    _dragController.animateTo(
-      0.99,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
-  } catch (_) {}
-
-
+    _animateSheetTo(0.98);
     _scrollToBottom();
 
     try {
@@ -115,12 +105,44 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
   }
 
   void _scrollToBottom() {
-    if (!_scrollController.hasClients) return;
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
+    final controller = _chatScrollController;
+    if (controller == null || !controller.hasClients) return;
+
+    controller.animateTo(
+      controller.position.maxScrollExtent,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
+  }
+
+  /// Helper para animar el tamaño del sheet
+  Future<void> _animateSheetTo(double target) async {
+    if (!_dragController.isAttached) return;
+
+    try {
+      await _dragController.animateTo(
+        target,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    } catch (_) {
+      // por si el controlador se desadjunta en el medio
+    }
+  }
+
+  // alternar modo pantalla completa
+  void _toggleFullScreen() async {
+    if (!_dragController.isAttached) return;
+
+    final current = _dragController.size;
+    final bool goingToMax = current < 0.9;
+    final targetSize = goingToMax ? 0.98 : 0.80;
+
+    await _animateSheetTo(targetSize);
+
+    _safeSetState(() {
+      _isMaximized = goingToMax;
+    });
   }
 
   @override
@@ -128,291 +150,330 @@ class _MunditoBottomSheetState extends State<MunditoBottomSheet> {
     final tema = Theme.of(context);
 
     return SafeArea(
-    top: false,          // dejamos que llegue arriba del todo
-    child: DraggableScrollableSheet(
-      controller: _dragController,
-      initialChildSize: 0.80,
-      minChildSize: 0.55,
-      maxChildSize: 0.98,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF042F2E),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          child: Column(
-            children: [
-              // Handle del sheet
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
+      top: false, // dejamos que llegue arriba del todo
+      child: DraggableScrollableSheet(
+        controller: _dragController,
+        initialChildSize: 0.80,
+        minChildSize: 0.55,
+        maxChildSize: 0.98, 
+        builder: (context, sheetScrollController) {
+          // Guardamos el controller que maneja el scroll del sheet
+          _chatScrollController ??= sheetScrollController;
 
-              // Header Mundito
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 95,
-                    height: 74,
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/mundito_icon_v2.png',
-                        fit: BoxFit.cover,
+          return Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF042F2E),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            child: Column(
+              children: [
+                // Handle del sheet
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+
+                // Header Mundito
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 95,
+                      height: 74,
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/mundito_icon_v2.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Mundito - Asistente Eco IA',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFC8FACC),
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Te ayudo con reciclaje, ecopuntos y canjes dentro de ReciclApp.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFFB6E3C8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Chips de preguntas rápidas
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Preguntas rápidas',
+                    style: tema.textTheme.bodyMedium?.copyWith(
+                      color: const Color(0xFF9FE3B0),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: -11,
+                  runSpacing: -11,
+                  children: _faqs.map((q) {
+                    return ActionChip(
+                      label: Text(
+                        q,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      backgroundColor: const Color(0xFF064E3B),
+                      labelStyle: const TextStyle(color: Colors.white),
+                      onPressed: _loading ? null : () => _handleQuestion(q),
+                    );
+                  }).toList(),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Zona de chat
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF022C22),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Stack(
                       children: [
-                        Text(
-                          'Mundito - Asistente Eco IA',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFC8FACC),
-                          ),
+                        // Lista de mensajes
+                        ListView.builder(
+                          controller: sheetScrollController,
+                          itemCount: _messages.length,
+                          padding: const EdgeInsets.only(bottom: 16, top: 8),
+                          itemBuilder: (context, index) {
+                            final msg = _messages[index];
+                            final isUser = msg.fromUser;
+
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                mainAxisAlignment: isUser
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (!isUser) ...[
+                                    const CircleAvatar(
+                                      radius: 14,
+                                      backgroundColor: Color(0xFF064E3B),
+                                      backgroundImage: AssetImage(
+                                        'assets/mundito_icon_v2.png',
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  Flexible(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isUser
+                                            ? const Color(0xFF16A34A)
+                                            : const Color(0xFF064E3B),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: const Radius.circular(16),
+                                          topRight: const Radius.circular(16),
+                                          bottomLeft: Radius.circular(
+                                            isUser ? 16 : 4,
+                                          ),
+                                          bottomRight: Radius.circular(
+                                            isUser ? 4 : 16,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        msg.text,
+                                        style: TextStyle(
+                                          color: isUser
+                                              ? Colors.white
+                                              : const Color(0xFFC8FACC),
+                                          fontSize: 14,
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  if (isUser) const SizedBox(width: 4),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Te ayudo con reciclaje, ecopuntos y canjes dentro de ReciclApp.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFFB6E3C8),
+
+                        // Overlay "pensando"
+                        if (_loading)
+                          Align(
+                            alignment: Alignment.topCenter,
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.40),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor:
+                                          AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    'Mundito está pensando...',
+                                    style: TextStyle(
+                                      color: Color(0xFFC8FACC),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // Chips de preguntas rápidas
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Preguntas rápidas',
-                  style: tema.textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF9FE3B0),
-                    fontWeight: FontWeight.bold,
-                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: _faqs.map((q) {
-                  return ActionChip(
-                    label: Text(
-                      q,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    backgroundColor: const Color(0xFF064E3B),
-                    labelStyle: const TextStyle(color: Colors.white),
-                    onPressed: _loading ? null : () => _handleQuestion(q),
-                  );
-                }).toList(),
-              ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 10),
 
-              // 🟢 Zona de chat (gran parte de la pantalla)
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF022C22),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: Stack(
-                    children: [
-                      // Lista de mensajes
-                      ListView.builder(
-                        controller: _scrollController,
-                        itemCount: _messages.length,
-                        padding: const EdgeInsets.only(bottom: 16, top: 8),
-                        itemBuilder: (context, index) {
-                          final msg = _messages[index];
-                          final isUser = msg.fromUser;
-
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: isUser
-                                  ? MainAxisAlignment.end
-                                  : MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (!isUser) ...[
-                                  CircleAvatar(
-                                    radius: 14,
-                                    backgroundColor: const Color(0xFF064E3B),
-                                    backgroundImage: const AssetImage(
-                                      'assets/mundito_icon_v2.png',
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                ],
-                                Flexible(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isUser
-                                          ? const Color(0xFF16A34A)
-                                          : const Color(0xFF064E3B),
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: const Radius.circular(16),
-                                        topRight: const Radius.circular(16),
-                                        bottomLeft: Radius.circular(
-                                          isUser ? 16 : 4,
-                                        ),
-                                        bottomRight: Radius.circular(
-                                          isUser ? 4 : 16,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      msg.text,
-                                      style: TextStyle(
-                                        color: isUser
-                                            ? Colors.white
-                                            : const Color(0xFFC8FACC),
-                                        fontSize: 14,
-                                        height: 1.3,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                if (isUser) const SizedBox(width: 4),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-
-                      // Overlay "pensando"
-                      if (_loading)
-                        Align(
-                          alignment: Alignment.topCenter,
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.40),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  'Mundito está pensando...',
-                                  style: TextStyle(
-                                    color: Color(0xFFC8FACC),
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
+                // Campo de pregunta + botón de pantalla completa al lado
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _questionCtrl,
+                        maxLines: 3,
+                        minLines: 1,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFF022C22),
+                          hintText: 'Escribí tu pregunta para Mundito...',
+                          hintStyle:
+                              const TextStyle(color: Colors.white54),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide:
+                                const BorderSide(color: Colors.white24),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide:
+                                const BorderSide(color: Colors.white24),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: const BorderSide(
+                              color: Colors.greenAccent,
                             ),
                           ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF022C22),
+                        borderRadius: BorderRadius.circular(16),
+                        border:
+                            Border.all(color: Colors.white24, width: 1),
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          _isMaximized
+                              ? Icons.fullscreen_exit
+                              : Icons.fullscreen,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                        tooltip: _isMaximized
+                            ? 'Salir de pantalla completa'
+                            : 'Expandir Mundito',
+                        onPressed: _toggleFullScreen,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
-              //  Campo de pregunta (debajo del chat)
-              TextField(
-                controller: _questionCtrl,
-                maxLines: 3,
-                minLines: 1,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFF022C22),
-                  hintText: 'Escribí tu pregunta para Mundito...',
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Colors.greenAccent),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Botón debajo del campo de texto
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _loading
-                      ? null
-                      : () async {
-                          final q = _questionCtrl.text;
-                          _questionCtrl.clear();
-                          await _handleQuestion(q);
-                        },
-                  icon: const Icon(Icons.send),
-                  label: Text(
-                    _loading ? 'Pensando...' : 'Preguntar a Mundito',
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF16A34A),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
+                // Botón debajo del campo de texto
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _loading
+                        ? null
+                        : () async {
+                            final q = _questionCtrl.text;
+                            _questionCtrl.clear();
+                            await _handleQuestion(q);
+                          },
+                    icon: const Icon(Icons.send),
+                    label: Text(
+                      _loading ? 'Pensando...' : 'Preguntar a Mundito',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF16A34A),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    ));
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 
