@@ -45,3 +45,16 @@ android {
 flutter {
     source = "../.."
 }
+
+configurations.all {
+    exclude(group = "com.google.ai.edge.litert")
+}
+
+dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0")
+    implementation("androidx.core:core-ktx:1.12.0")
+
+    // Permite usar TensorImage, TensorBuffer, ImageProcessor, NormalizeOp, etc.
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.3")
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.4.3")
+}

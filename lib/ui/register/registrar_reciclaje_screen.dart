@@ -63,7 +63,7 @@ class RegistrarReciclajeScreen extends StatelessWidget {
               iconColor: Colors.blue,
               title: 'Detección Automática con IA',
               subtitle: 'Usa la cámara para identificar automáticamente el tipo de residuo',
-              badge: 'BETA',
+              badge: 'NEW',
               badgeColor: Colors.orange,
               onTap: () {
                 Navigator.push(
