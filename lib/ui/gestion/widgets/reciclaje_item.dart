@@ -20,7 +20,7 @@ class ReciclajeItem extends StatelessWidget {
     return Card(
       child: ListTile(
         title: Text(nota),
-        subtitle: Text("${estado} • ${fecha ?? ''}"),
+        subtitle: Text("$estado • ${fecha ?? ''}"),
         onTap: onTap,
       ),
     );
