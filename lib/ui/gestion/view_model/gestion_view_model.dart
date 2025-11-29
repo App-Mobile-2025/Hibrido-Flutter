@@ -15,6 +15,8 @@ class GestionViewModel extends ChangeNotifier {
 
   final inputBuscar = TextEditingController();
 
+  List<String> filtrosEstado = [];
+
   Future<void> cargarPuntos() async {
     loadingPoints = true;
     notifyListeners();
@@ -42,6 +44,7 @@ class GestionViewModel extends ChangeNotifier {
         .get();
 
     final docs = result.docs;
+
     docs.sort((a, b) {
       final da = a.get("confirmedAt");
       final db = b.get("confirmedAt");
@@ -58,6 +61,7 @@ class GestionViewModel extends ChangeNotifier {
 
   void buscarNota() {
     final texto = inputBuscar.text.trim();
+
     if (texto.isEmpty) {
       historial = List.from(historialOriginal);
     } else {
@@ -66,20 +70,29 @@ class GestionViewModel extends ChangeNotifier {
         return nota.contains(texto.toLowerCase());
       }).toList();
     }
+
     inputBuscar.clear();
     notifyListeners();
   }
 
   void aplicarFiltro(List<String> estados) {
+    filtrosEstado = estados; 
+
     if (estados.isEmpty) {
       historial = List.from(historialOriginal);
     } else {
-      historial = historialOriginal.where((doc) { 
+      historial = historialOriginal.where((doc) {
         final estado = (doc.get("estado") ?? "").toString();
         return estados.contains(estado);
       }).toList();
     }
+
+    notifyListeners();
+  }
+
+  void limpiarFiltros() {
+    filtrosEstado = [];
+    historial = List.from(historialOriginal);
     notifyListeners();
   }
 }
-
