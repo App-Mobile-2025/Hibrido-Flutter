@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:reciclapp/ui/register/mapa/ecopuntos_ba.dart';
+import 'package:geolocator/geolocator.dart';
+
+import 'ecopuntos_ba.dart';
 
 class EcopuntoMapScreen extends StatefulWidget {
   const EcopuntoMapScreen({super.key});
@@ -12,6 +14,69 @@ class EcopuntoMapScreen extends StatefulWidget {
 class _EcopuntoMapScreenState extends State<EcopuntoMapScreen> {
   GoogleMapController? _mapController;
   Ecopunto? _seleccionado;
+  bool _cargandoUbicacion = false;
+
+  Future<void> _irAMiUbicacion() async {
+    setState(() {
+      _cargandoUbicacion = true;
+    });
+
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() => _cargandoUbicacion = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor activá el GPS para usar tu ubicación'),
+        ),
+      );
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() => _cargandoUbicacion = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Se necesita permiso de ubicación')),
+        );
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setState(() => _cargandoUbicacion = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'El permiso de ubicación está bloqueado. Habilitalo desde Ajustes.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final pos = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    final userLatLng = LatLng(pos.latitude, pos.longitude);
+
+    if (_mapController != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(userLatLng, 16),
+      );
+    }
+
+    setState(() {
+      _seleccionado = Ecopunto(
+        'Ubicación actual',
+        pos.latitude,
+        pos.longitude,
+      );
+      _cargandoUbicacion = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +85,7 @@ class _EcopuntoMapScreenState extends State<EcopuntoMapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Elegir Ecopunto'),
+        backgroundColor: Colors.green,
       ),
       body: Stack(
         children: [
@@ -43,9 +109,15 @@ class _EcopuntoMapScreenState extends State<EcopuntoMapScreen> {
                   ),
                 )
                 .toSet(),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            // Esto mueve + y - hacia arriba cuando hay tarjeta abajo
+            padding: _seleccionado != null
+                ? const EdgeInsets.only(bottom: 130)
+                : EdgeInsets.zero,
           ),
 
-          // Barra inferior con el ecopunto seleccionado
+          // Tarjeta inferior con punto seleccionado
           if (_seleccionado != null)
             Positioned(
               left: 0,
@@ -79,7 +151,7 @@ class _EcopuntoMapScreenState extends State<EcopuntoMapScreen> {
                           Navigator.pop(context, _seleccionado);
                         },
                         icon: const Icon(Icons.check),
-                        label: const Text('Usar este ecopunto'),
+                        label: const Text('Usar este punto'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
@@ -90,6 +162,26 @@ class _EcopuntoMapScreenState extends State<EcopuntoMapScreen> {
                 ),
               ),
             ),
+
+          // FAB "Mi ubicación", justo arriba del +
+          Positioned(
+            right: 6,
+            bottom: _seleccionado != null ? 225 : 110,
+            child: FloatingActionButton.small(
+              onPressed: _cargandoUbicacion ? null : _irAMiUbicacion,
+              backgroundColor: Colors.green,
+              child: _cargandoUbicacion
+                  ? const SizedBox(
+                      width: 18,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.my_location, size: 20),
+            ),
+          ),
         ],
       ),
     );
