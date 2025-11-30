@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reciclapp/ui/canje/canjeScrean.dart';
 import 'package:reciclapp/ui/munditoIA/mundito_bottom_sheet.dart';
 import '../perfil/perfil_screen.dart';
 import 'package:reciclapp/ui/gestion/gestion_screen.dart';
@@ -20,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const SizedBox.shrink(),      
     const RegistrarReciclajeScreen(),
     GestionScreen(),                
-    const Center(child: Text('Canje')),
+    const CanjeScreen(),  
     const PerfilScreen(),
     const Center(child: Text('Configuración')),
   ];
