@@ -13,9 +13,8 @@ class RegistrarStep1Screen extends StatefulWidget {
 class _RegistrarStep1ScreenState extends State<RegistrarStep1Screen> {
   final _ecopuntoController = TextEditingController();
 
-    Ecopunto? _ecopuntoSeleccionado;
+  Ecopunto? _ecopuntoSeleccionado;
 
-  
   final Map<String, bool> _materiales = {
     'Cartón': false,
     'Plástico': false,
@@ -34,25 +33,23 @@ class _RegistrarStep1ScreenState extends State<RegistrarStep1Screen> {
     'Aceite': Icons.water_drop,
   };
 
-Future<void> _abrirMapaEcopunto() async {
-  final resultado = await Navigator.push<Ecopunto>(
-    context,
-    MaterialPageRoute(
-      builder: (_) => const EcopuntoMapScreen(),
-    ),
-  );
+  Future<void> _abrirMapaEcopunto() async {
+    final resultado = await Navigator.push<Ecopunto>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const EcopuntoMapScreen(),
+      ),
+    );
 
-  if (resultado != null) {
-    setState(() {
-      _ecopuntoSeleccionado = resultado;
-      _ecopuntoController.text =
-          '${resultado.nombre} (${resultado.lat.toStringAsFixed(5)}, '
-          '${resultado.lng.toStringAsFixed(5)})';
-    });
+    if (resultado != null) {
+      setState(() {
+        _ecopuntoSeleccionado = resultado;
+        _ecopuntoController.text =
+            '${resultado.nombre} (${resultado.lat.toStringAsFixed(5)}, '
+            '${resultado.lng.toStringAsFixed(5)})';
+      });
+    }
   }
-}
-
-
 
   @override
   void dispose() {
@@ -149,30 +146,29 @@ Future<void> _abrirMapaEcopunto() async {
             ),
             const SizedBox(height: 12),
             TextField(
-  controller: _ecopuntoController,
-  readOnly: true,
-  onTap: _abrirMapaEcopunto, // abre el mapa
-  decoration: InputDecoration(
-    hintText: 'Tocá para elegir un Ecopunto en el mapa',
-    prefixIcon: const Icon(Icons.location_on, color: Colors.green),
-    suffixIcon: const Icon(Icons.map, color: Colors.green),
-    filled: true,
-    fillColor: Colors.white,
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide.none,
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: Colors.green.shade100),
-    ),
-    focusedBorder: const OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
-      borderSide: BorderSide(color: Colors.green, width: 2),
-    ),
-  ),
-),
-
+              controller: _ecopuntoController,
+              readOnly: true,
+              onTap: _abrirMapaEcopunto, // abre el mapa
+              decoration: InputDecoration(
+                hintText: 'Tocá para elegir un Ecopunto en el mapa',
+                prefixIcon: const Icon(Icons.location_on, color: Colors.green),
+                suffixIcon: const Icon(Icons.map, color: Colors.green),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.green.shade100),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.green, width: 2),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 32),
 
@@ -219,9 +215,8 @@ Future<void> _abrirMapaEcopunto() async {
                       color: seleccionado ? Colors.green : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: seleccionado
-                            ? Colors.green
-                            : Colors.green.shade100,
+                        color:
+                            seleccionado ? Colors.green : Colors.green.shade100,
                         width: 2,
                       ),
                       boxShadow: seleccionado
