@@ -25,19 +25,6 @@ class RecycleDetailScreen extends StatelessWidget {
 class _RecycleDetailBody extends StatelessWidget {
   const _RecycleDetailBody();
 
-  LatLng parseCoords(String coords) {
-    final regex = RegExp(r'\((-?\d+,\d+),\s*(-?\d+,\d+)\)');
-    final match = regex.firstMatch(coords);
-
-    if (match != null) {
-      final lat = double.parse(match.group(1)!.replaceAll(",", "."));
-      final lng = double.parse(match.group(2)!.replaceAll(",", "."));
-      return LatLng(lat, lng);
-    }
-
-    return const LatLng(0, 0);
-  }
-
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<RecycleDetailViewModel>();
@@ -58,18 +45,37 @@ class _RecycleDetailBody extends StatelessWidget {
     final materiales = (data["materiales"] as List?)?.join(", ") ?? "-";
     final tagsList =
         (data["tags"] as List?)?.map((e) => e.toString()).toList() ?? [];
-    final ecopunto = data["ecopunto"] ?? "-";
+
+    // ecopuntoNombre + direccionCompleta
+    final ecopuntoNombre =
+        (data["ecopuntoNombre"] ?? data["ecopunto"] ?? "-").toString();
+
+    final direccionCompleta =
+        (data["direccionCompleta"] ?? "").toString();
+
+    final ecopuntoLabel = direccionCompleta.isNotEmpty
+        ? "$ecopuntoNombre\n$direccionCompleta"
+        : ecopuntoNombre;
+
     final estado = (data["estado"] ?? "-").toString().toUpperCase();
     final puntos = data["puntos"] ?? 0;
     final nota = data["nota"] ?? "-";
     final fechaTimestamp = data["confirmedAt"];
 
-    final coords = parseCoords(ecopunto);
+    // Coords ahora desde lat/lng en Firestore, NO parseando string
+    final lat = (data["lat"] as num?)?.toDouble();
+    final lng = (data["lng"] as num?)?.toDouble();
+
+    LatLng coords;
+    if (lat != null && lng != null) {
+      coords = LatLng(lat, lng);
+    } else {
+      coords = const LatLng(0, 0);
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Detalle Reciclaje"),
-
         actions: [
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
@@ -77,7 +83,6 @@ class _RecycleDetailBody extends StatelessWidget {
           ),
         ],
       ),
-
       body: Column(
         children: [
           Expanded(
@@ -106,13 +111,17 @@ class _RecycleDetailBody extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  MapCardWidget(coords: coords, ecopunto: ecopunto),
+                  // aca le mando coordenadas y con direccion completa
+                  MapCardWidget(
+                    coords: coords,
+                    ecopunto: ecopuntoLabel,
+                  ),
+
                   const SizedBox(height: 8),
                 ],
               ),
             ),
           ),
-
         ],
       ),
     );
