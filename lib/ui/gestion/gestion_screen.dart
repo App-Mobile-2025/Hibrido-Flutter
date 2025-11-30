@@ -46,14 +46,17 @@ class _GestionBody extends StatelessWidget {
               loading: vm.loadingPoints,
               total: vm.historialOriginal.length,
               aprobados: vm.historialOriginal
-                  .where((e) => (e.get("estado") ?? "") == "Aprobado")
+                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "aprobado")
                   .length,
+
               pendientes: vm.historialOriginal
-                  .where((e) => (e.get("estado") ?? "") == "Pendiente")
+                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "pendiente")
                   .length,
+
               rechazados: vm.historialOriginal
-                  .where((e) => (e.get("estado") ?? "") == "Rechazado")
+                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "rechazado")
                   .length,
+
               onCanje: () {
                 Navigator.pushNamed(context, "/canje");
               },
