@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reciclapp/data/services/auth_service.dart';
 import 'package:reciclapp/ui/register/register_screen.dart';
+import 'package:lottie/lottie.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -69,7 +70,12 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.recycling, size: 72, color: Colors.green),
+              Lottie.asset(
+                'assets/login.json',
+                width: 150,
+                height: 150,
+                fit: BoxFit.contain,
+              ),
                 const SizedBox(height: 16),
                 const Text(
                   'Bienvenido a Reciclapp',

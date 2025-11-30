@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:reciclapp/ui/munditoIA/mundito_bottom_sheet.dart';
 import '../perfil/perfil_screen.dart';
 import 'package:reciclapp/ui/gestion/gestion_screen.dart';
+import '../register/registrar_reciclaje_screen.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,8 +16,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // LISTA DE PÁGINAS
   final List<Widget> _pages = [
+
     const SizedBox.shrink(),      
-    const Center(child: Text('Registrar Reciclaje')),
+    const RegistrarReciclajeScreen(),
     GestionScreen(),                
     const Center(child: Text('Canje')),
     const PerfilScreen(),
@@ -31,9 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
       ),
 
-      body: _currentIndex == 0
-          ? _buildHomeDashboard()
-          : _pages[_currentIndex],
+      body: _currentIndex == 0 ? _buildHomeDashboard() : _pages[_currentIndex],
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -48,6 +49,28 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Config'),
         ],
       ),
+
+      // BOTÓN FLOTANTE DE MUNDITO (BOT IA)
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (ctx) => const MunditoBottomSheet(),
+          );
+        },
+        backgroundColor: Colors.green.shade600,
+        icon: ClipOval(
+          child: Image.asset(
+            'assets/mundito_icon_v2.png',
+            width: 48,
+            height: 48,
+            fit: BoxFit.cover,
+          ),
+        ),
+        label: const Text('Mundito IA'),
+      ),
     );
   }
 
@@ -61,7 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
-
           const Text(
             'Bienvenido a ReciclApp',
             style: TextStyle(
@@ -70,9 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.green,
             ),
           ),
-
           const SizedBox(height: 24),
-
           GridView.count(
             crossAxisCount: 2,
             crossAxisSpacing: 16,
@@ -131,12 +151,10 @@ class _HomeOptionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-
           border: Border.all(
             color: Colors.green.shade100,
             width: 1.5,
           ),
-
           boxShadow: [
             BoxShadow(
               blurRadius: 6,
@@ -145,9 +163,7 @@ class _HomeOptionCard extends StatelessWidget {
             ),
           ],
         ),
-
         padding: const EdgeInsets.all(16),
-
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -171,9 +187,7 @@ class _HomeOptionCard extends StatelessWidget {
                 color: Colors.green.shade700,
               ),
             ),
-
             const SizedBox(height: 12),
-
             Text(
               label,
               textAlign: TextAlign.center,

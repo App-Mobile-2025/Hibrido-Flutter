@@ -29,7 +29,8 @@ class MapCardWidget extends StatelessWidget {
           ),
           SizedBox(
             height: 250,
-            child: GoogleMap(
+            width: double.infinity, 
+            /*child: GoogleMap(
               initialCameraPosition: CameraPosition(target: coords, zoom: 15),
               markers: {
                 Marker(
@@ -42,7 +43,7 @@ class MapCardWidget extends StatelessWidget {
               scrollGesturesEnabled: false,
               tiltGesturesEnabled: false,
               rotateGesturesEnabled: false,
-            ),
+            ),*/
           ),
         ],
       ),

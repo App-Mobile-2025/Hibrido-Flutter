@@ -95,7 +95,7 @@ class _SplashScreenState extends State<SplashScreen>
             FadeTransition(
               opacity: fadeCtrl,
               child: const Text(
-                "Desarrollado por Fiorela, Enzo y Julieta",
+                "Desarrollado por Fiorella, Enzo y Julia",
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 16,
