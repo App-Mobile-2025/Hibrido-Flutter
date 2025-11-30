@@ -5,6 +5,46 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9c198593-264e-4b7c-8086-7d54ed8aee05" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/fondo_eco.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/labels.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/login.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/model.tflite" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/mundito_icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/mundito_icon_v2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/register.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/devtools_options.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/data/services/detector_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/data/services/mundito_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/data/services/profile_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/camera/camera_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/gestion/widgets/buscador_gestion.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/gestion/widgets/header_gestion.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/munditoIA/mundito_bottom_sheet.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/perfil/edit_profile_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/perfil/view_model/edit_profile_controller.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/register/confirmacion_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/register/registrar_reciclaje_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/register/registrar_step1.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/ui/register/registrar_step2.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/services/auth_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/services/auth_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/gestion/gestion_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/gestion/gestion_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/gestion/view_model/gestion_view_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/gestion/view_model/gestion_view_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/gestion/widgets/filtro_bottomsheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/gestion/widgets/filtro_bottomsheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/gestion/widgets/reciclaje_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/gestion/widgets/reciclaje_item.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/home/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/home/home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/home/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/home/splash_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/home/view_model/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/login/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/login/login_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/perfil/perfil_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/perfil/perfil_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/ui/register/register_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/register/register_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -57,7 +97,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "dev",
+    "git-widget-placeholder": "Merging fiore/detail",
     "io.flutter.project.isFirstOpen": "true",
     "last_opened_file_path": "C:/Hibrido-Flutter",
     "show.migrate.to.gradle.popup": "false"

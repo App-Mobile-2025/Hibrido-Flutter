@@ -6,7 +6,7 @@ import 'firebase_options.dart';
 import 'package:reciclapp/ui/home/splash_screen.dart';
 import 'package:reciclapp/ui/login/login_screen.dart';
 import 'package:reciclapp/ui/home/home_screen.dart';
-import 'package:reciclapp/ui/gestion/gestion_screen.dart';
+import 'package:reciclapp/ui/recycle_detail/recycle_detail_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,8 +37,13 @@ class Reciclapp extends StatelessWidget {
       routes: {
         "/login": (context) => const LoginScreen(),
         "/home": (context) => const HomeScreen(),
-        "/gestion": (context) => GestionScreen(),
-      },
-    );
+        
+        "/detalle_reciclaje": (context) {
+          final docId = ModalRoute.of(context)!.settings.arguments as String;
+          return RecycleDetailScreen(docId: docId);
+        },
+
+
+      },);
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'view_model/gestion_view_model.dart';
+import '../recycle_detail/recycle_detail_screen.dart'; // Asegurate que la ruta sea correcta
 import 'widgets/reciclaje_item.dart';
 import 'widgets/filtro_bottomsheet.dart';
-
-import 'widgets/header_gestion.dart'; 
+import 'widgets/header_gestion.dart';
 
 class GestionScreen extends StatelessWidget {
   const GestionScreen({super.key});
@@ -30,7 +30,6 @@ class _GestionBody extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
 
-      // APPBAR
       appBar: AppBar(
         title: const Text("Gestión de Reciclajes"),
       ),
@@ -39,22 +38,25 @@ class _GestionBody extends StatelessWidget {
         children: [
           const SizedBox(height: 8),
 
-          // HEADER PUNTOS
+          // HEADER
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: HeaderGestion(
               puntos: vm.puntos,
               loading: vm.loadingPoints,
-              total: vm.historialOriginal.length, 
+              total: vm.historialOriginal.length,
               aprobados: vm.historialOriginal
-                  .where((e) => (e.get("estado") ?? "") == "Aprobado")
+                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "aprobado")
                   .length,
+
               pendientes: vm.historialOriginal
-                  .where((e) => (e.get("estado") ?? "") == "Pendiente")
+                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "pendiente")
                   .length,
+
               rechazados: vm.historialOriginal
-                  .where((e) => (e.get("estado") ?? "") == "Rechazado")
+                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "rechazado")
                   .length,
+
               onCanje: () {
                 Navigator.pushNamed(context, "/canje");
               },
@@ -63,7 +65,7 @@ class _GestionBody extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // BUSCADOR + FILTRO
+          // BUSCADOR Y FILTRO
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: BuscadorGestion(
@@ -71,8 +73,8 @@ class _GestionBody extends StatelessWidget {
               onBuscar: vm.buscarNota,
               onFiltro: () {
                 showModalBottomSheet(
-                  context: context,
                   isScrollControlled: true,
+                  context: context,
                   builder: (_) => FiltroBottomsheet(
                     seleccionInicial: vm.filtrosEstado,
                     onAplicar: vm.aplicarFiltro,
@@ -84,7 +86,7 @@ class _GestionBody extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // LISTA HISTORIAL
+          // LISTA
           Expanded(
             child: vm.loadingHistorial
                 ? const Center(child: CircularProgressIndicator())
@@ -93,14 +95,23 @@ class _GestionBody extends StatelessWidget {
                     itemCount: vm.historial.length,
                     itemBuilder: (_, i) {
                       final doc = vm.historial[i];
+
                       return ReciclajeItem(
                         doc: doc,
-                        onTap: () {
-                          Navigator.pushNamed(
+                        onTap: () async {
+                          final deleted = await Navigator.push(
                             context,
-                            "/detalle_reciclaje",
-                            arguments: doc.id,
+                            MaterialPageRoute(
+                              builder: (_) => RecycleDetailScreen(
+                                docId: doc.id,
+                              ),
+                            ),
                           );
+
+                          if (deleted == true || deleted == "updated") {
+                            vm.cargarHistorial();
+                          }
+
                         },
                       );
                     },
@@ -112,8 +123,7 @@ class _GestionBody extends StatelessWidget {
   }
 }
 
-// WIDGET: BUSCADOR + BOTÓN FILTRO
-
+// BUSCADOR + FILTRO
 class BuscadorGestion extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onBuscar;

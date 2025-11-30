@@ -17,12 +17,12 @@ class FiltroBottomsheet extends StatefulWidget {
 class _FiltroBottomsheetState extends State<FiltroBottomsheet> {
   List<String> seleccion = [];
 
-  final opciones = ["Pendiente", "Aprobado", "Rechazado"];
+  final opciones = ["pendiente", "aprobado", "rechazado"];
 
   final Map<String, Color> colorEstado = {
-    "Pendiente": Colors.orange.shade600,
-    "Aprobado": Colors.green.shade600,
-    "Rechazado": Colors.red.shade600,
+    "pendiente": Colors.orange.shade600,
+    "aprobado": Colors.green.shade600,
+    "rechazado": Colors.red.shade600,
   };
 
   @override
@@ -68,6 +68,7 @@ class _FiltroBottomsheetState extends State<FiltroBottomsheet> {
             spacing: 12,
             runSpacing: 12,
             children: opciones.map((estado) {
+              estado = estado.toLowerCase();
               final activo = seleccion.contains(estado);
               return ChoiceChip(
                 label: Text(

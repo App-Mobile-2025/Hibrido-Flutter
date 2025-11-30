@@ -82,7 +82,7 @@ class GestionViewModel extends ChangeNotifier {
       historial = List.from(historialOriginal);
     } else {
       historial = historialOriginal.where((doc) {
-        final estado = (doc.get("estado") ?? "").toString();
+        final estado = (doc.get("estado") ?? "").toLowerCase().toString();
         return estados.contains(estado);
       }).toList();
     }
