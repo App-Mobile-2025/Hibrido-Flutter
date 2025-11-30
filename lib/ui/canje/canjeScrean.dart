@@ -57,7 +57,7 @@ class CanjeScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ---- Tus puntos (con FutureBuilder) ----
+          // ---- puntos ----
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: FutureBuilder<int>(
@@ -239,7 +239,6 @@ class CanjeScreen extends StatelessWidget {
                         ),
                         FilledButton(
                           onPressed: () {
-                            // acá más adelante podés implementar el canje
                           },
                           style: FilledButton.styleFrom(
                             backgroundColor: Colors.green.shade700,
