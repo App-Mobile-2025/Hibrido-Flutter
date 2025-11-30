@@ -39,19 +39,28 @@ class RecycleDetailViewModel extends ChangeNotifier {
 
   Future<void> _loadEvidenceImage() async {
     try {
+      final evidenciaUrl = data?["evidenciaUrl"];
+      if (evidenciaUrl != null && evidenciaUrl.toString().isNotEmpty) {
+        final ref = _storage.refFromURL(evidenciaUrl);
+        evidenceBytes = await ref.getData(5 * 1024 * 1024);
+        return;
+      }
+
       final evidenciaRefId = data?["evidenciaRefId"];
-      if (evidenciaRefId == null) return;
+      if (evidenciaRefId != null) {
+        final evDoc = await _db.collection("evidencias").doc(evidenciaRefId).get();
 
-      final evDoc =
-          await _db.collection("evidencias").doc(evidenciaRefId).get();
-
-      final url = evDoc["url"];
-      final ref = _storage.refFromURL(url);
-      evidenceBytes = await ref.getData(5 * 1024 * 1024);
+        if (evDoc.exists) {
+          final url = evDoc["url"];
+          final ref = _storage.refFromURL(url);
+          evidenceBytes = await ref.getData(5 * 1024 * 1024);
+        }
+      }
     } catch (e) {
       debugPrint("ERROR loading image: $e");
     }
   }
+
 
   Future<void> updateNota(String nuevaNota) async {
     try {
