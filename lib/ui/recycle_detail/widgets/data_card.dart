@@ -30,7 +30,6 @@ class DataCardWidget extends StatelessWidget {
     }
   }
 
-  // Genera un color random a partir del texto del tag
   Color _randomColor(String tag) {
     final colors = [
       Colors.red,
@@ -94,7 +93,7 @@ class DataCardWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Tags con colores random
+                  // Tags
                   Text("Tags:", style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
                   Wrap(
@@ -120,7 +119,7 @@ class DataCardWidget extends StatelessWidget {
               ),
             ),
 
-            // Puntos a la derecha
+            // Puntos
             Column(
               children: [
                 Text("Puntos", style: const TextStyle(fontWeight: FontWeight.bold)),

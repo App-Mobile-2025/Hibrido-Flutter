@@ -105,9 +105,10 @@ class _GestionBody extends StatelessWidget {
                             ),
                           );
 
-                          if (deleted == true) {
-                            vm.cargarHistorial(); // 🔥 refresca automáticamente
+                          if (deleted == true || deleted == "updated") {
+                            vm.cargarHistorial();
                           }
+
                         },
                       );
                     },

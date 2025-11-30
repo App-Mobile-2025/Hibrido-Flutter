@@ -92,6 +92,7 @@ class RecycleDetailViewModel extends ChangeNotifier {
                 final nuevaNota = controller.text.trim();
                 await updateNota(nuevaNota);
                 Navigator.pop(context);
+                Navigator.pop(context, "updated");
               },
               child: const Text("Guardar"),
             ),
@@ -105,7 +106,7 @@ class RecycleDetailViewModel extends ChangeNotifier {
     try {
       final evidenciaRefId = data?["evidenciaRefId"];
 
-      // 1️⃣ Si existe evidencia, borramos primero la imagen física
+      // Si existe evidencia, borramos primero la imagen física
       if (evidenciaRefId != null) {
         final evDoc = await _db.collection("evidencias").doc(evidenciaRefId).get();
 
@@ -121,10 +122,10 @@ class RecycleDetailViewModel extends ChangeNotifier {
         }
       }
 
-      // 2️⃣ Borra el reciclaje
+      // Borra el reciclaje
       await _db.collection("reciclajes").doc(docId).delete();
 
-      // 3️⃣ Volver avisando que se borró
+      // Volver avisando que se borró
       Navigator.pop(context, true);
 
     } catch (e) {
