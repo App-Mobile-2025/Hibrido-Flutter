@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:reciclapp/ui/canje/canjeScrean.dart';
 import 'package:reciclapp/ui/home/home_screen.dart';
 import 'view_model/gestion_view_model.dart';
-import '../recycle_detail/recycle_detail_screen.dart'; 
+import '../recycle_detail/recycle_detail_screen.dart';
 import 'widgets/reciclaje_item.dart';
 import 'widgets/filtro_bottomsheet.dart';
 import 'widgets/header_gestion.dart';
@@ -31,11 +31,9 @@ class _GestionBody extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-
       appBar: AppBar(
         title: const Text("Gestión de Reciclajes"),
       ),
-
       body: Column(
         children: [
           const SizedBox(height: 8),
@@ -48,24 +46,23 @@ class _GestionBody extends StatelessWidget {
               loading: vm.loadingPoints,
               total: vm.historialOriginal.length,
               aprobados: vm.historialOriginal
-                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "aprobado")
+                  .where((e) =>
+                      (e.get("estado") ?? "").toString().toLowerCase() ==
+                      "aprobado")
                   .length,
-
               pendientes: vm.historialOriginal
-                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "pendiente")
+                  .where((e) =>
+                      (e.get("estado") ?? "").toString().toLowerCase() ==
+                      "pendiente")
                   .length,
-
               rechazados: vm.historialOriginal
-                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "rechazado")
+                  .where((e) =>
+                      (e.get("estado") ?? "").toString().toLowerCase() ==
+                      "rechazado")
                   .length,
-
-               onCanje: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CanjeScreen(),
-                  ),
-                );
+              onCanje: () {
+                // cambia la pestaña del Home a la de Canje (índice 3)
+                HomeScreen.of(context)?.goToPage(3);
               },
             ),
           ),
@@ -118,7 +115,6 @@ class _GestionBody extends StatelessWidget {
                           if (deleted == true || deleted == "updated") {
                             vm.cargarHistorial();
                           }
-
                         },
                       );
                     },
