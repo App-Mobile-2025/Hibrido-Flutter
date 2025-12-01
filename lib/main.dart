@@ -3,12 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
-import 'package:reciclapp/ui/configuracion/appearance_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/appearance_provider.dart';
 import 'firebase_options.dart';
 
 // PROVIDERS
-import 'package:reciclapp/ui/configuracion/language_provider.dart';
-import 'package:reciclapp/ui/configuracion/notification_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/language_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/notification_provider.dart';
 
 // NOTIFICATION SERVICE
 import 'package:reciclapp/data/services/notification_service.dart';

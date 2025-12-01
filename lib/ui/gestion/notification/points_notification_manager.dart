@@ -1,5 +1,5 @@
 import 'package:reciclapp/data/services/notification_service.dart';
-import 'package:reciclapp/ui/configuracion/notification_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/notification_provider.dart';
 
 class PointsNotificationManager {
   final NotificationService _notificationService;
