@@ -19,15 +19,61 @@ class AppearanceConfigSection extends StatelessWidget {
         initiallyExpanded: false,
         tilePadding: const EdgeInsets.symmetric(horizontal: 16),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        title: Text(
-          'Apariencia',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.green.shade800,
-          ),
+
+        // TÍTULO + BADGE NEW
+       title: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    Text(
+      'Apariencia',
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: Colors.green.shade800,
+      ),
+    ),
+    const SizedBox(width: 6),
+
+    // Badge NEW
+    Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.green.shade600,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: const Text(
+        'NEW',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
         ),
+      ),
+    ),
+  ],
+),
+
+
         children: [
+          // MENSAJE PROMOCIONAL
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              '✨ Esta sección fue lanzada recientemente. ¡Sería genial que la pruebes!',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+
           const SizedBox(height: 4),
           const Text(
             'Tema de la aplicación',
@@ -36,7 +82,7 @@ class AppearanceConfigSection extends StatelessWidget {
             ),
           ),
 
-          // RadioGroup para Claro / Oscuro / Automático
+          // RadioGroup Claro/Oscuro/Automático
           RadioGroup<AppThemeMode>(
             groupValue: appearance.themeMode,
             onChanged: (mode) {
@@ -73,7 +119,6 @@ class AppearanceConfigSection extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 4),
 
           Row(
             children: [
@@ -102,10 +147,10 @@ class AppearanceConfigSection extends StatelessWidget {
               color: Colors.grey.shade700,
             ),
           ),
+
           const SizedBox(height: 4),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.green.withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
