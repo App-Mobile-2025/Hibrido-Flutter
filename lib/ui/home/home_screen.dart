@@ -20,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  // Páginas de navegación
   final List<Widget> _pages = [
     const SizedBox.shrink(),
     const RegistrarReciclajeScreen(),
@@ -30,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
     const ConfigScreen(),
   ];
 
-  // Permite cambiar la pestaña desde afuera
   void goToPage(int index) {
     setState(() {
       _currentIndex = index;
@@ -81,7 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
 
-      // BOTÓN FLOTANTE IA
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           showModalBottomSheet(
@@ -105,9 +102,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // --------------------------
-  // HOME DASHBOARD CON PNG
-  // --------------------------
+  // -------------------------------------
+  // DASHBOARD CON ANIMACIÓN + PNG
+  // -------------------------------------
   Widget _buildHomeDashboard() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -160,82 +157,100 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ---------------------------------------------
-// CARD DEL DASHBOARD — AHORA CON PNG
-// ---------------------------------------------
-class _HomeOptionCard extends StatelessWidget {
+// -------------------------------------------------
+// CARD ANIMADA CON PNG
+// -------------------------------------------------
+class _HomeOptionCard extends StatefulWidget {
   final String iconPath;
   final String label;
   final VoidCallback onTap;
 
   const _HomeOptionCard({
+    super.key,
     required this.iconPath,
     required this.label,
     required this.onTap,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Colors.green.shade100,
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-              color: Colors.black.withOpacity(0.05),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(16),
+  State<_HomeOptionCard> createState() => _HomeOptionCardState();
+}
 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.green.shade50,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.green.withOpacity(0.25),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+class _HomeOptionCardState extends State<_HomeOptionCard> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: _isPressed ? 0.96 : 1.0,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: widget.onTap,
+        onHighlightChanged: (value) {
+          setState(() {
+            _isPressed = value;
+          });
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.green.shade100,
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+                color: Colors.black.withOpacity(0.05),
               ),
-              child: Center(
-                child: Image.asset(
-                  iconPath,
-                  width: 52,
-                  height: 52,
-                  fit: BoxFit.contain,
+            ],
+          ),
+          padding: const EdgeInsets.all(16),
+
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 68,
+                height: 68,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green.shade50,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.25),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Image.asset(
+                    widget.iconPath,
+                    width: 52,
+                    height: 52,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                color: Colors.green,
+              Text(
+                widget.label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
