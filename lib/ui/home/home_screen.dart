@@ -3,10 +3,14 @@ import 'package:reciclapp/ui/canje/canjeScrean.dart';
 import 'package:reciclapp/ui/munditoIA/mundito_bottom_sheet.dart';
 import '../perfil/perfil_screen.dart';
 import 'package:reciclapp/ui/gestion/gestion_screen.dart';
-import '../register/registrar_reciclaje_screen.dart'; 
+import '../register/registrar_reciclaje_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  //para poder acceder al state desde otros widgets (como Gestión)
+  static _HomeScreenState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_HomeScreenState>();
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -17,14 +21,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // LISTA DE PÁGINAS
   final List<Widget> _pages = [
-
-    const SizedBox.shrink(),      
+    const SizedBox.shrink(),
     const RegistrarReciclajeScreen(),
-    GestionScreen(),                
-    const CanjeScreen(),  
+    const GestionScreen(),
+    const CanjeScreen(),
     const PerfilScreen(),
     const Center(child: Text('Configuración')),
   ];
+
+  // MEtodo para cambiar de pestaña desde otros widgets
+  void goToPage(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

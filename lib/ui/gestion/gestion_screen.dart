@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reciclapp/ui/canje/canjeScrean.dart';
+import 'package:reciclapp/ui/home/home_screen.dart';
 import 'view_model/gestion_view_model.dart';
-import '../recycle_detail/recycle_detail_screen.dart'; // Asegurate que la ruta sea correcta
+import '../recycle_detail/recycle_detail_screen.dart'; 
 import 'widgets/reciclaje_item.dart';
 import 'widgets/filtro_bottomsheet.dart';
 import 'widgets/header_gestion.dart';
@@ -57,8 +59,13 @@ class _GestionBody extends StatelessWidget {
                   .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "rechazado")
                   .length,
 
-              onCanje: () {
-                Navigator.pushNamed(context, "/canje");
+               onCanje: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CanjeScreen(),
+                  ),
+                );
               },
             ),
           ),
