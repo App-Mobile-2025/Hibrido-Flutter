@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'package:reciclapp/ui/configuracion/appearance_provider.dart';
 import 'firebase_options.dart';
 
 // PROVIDERS
@@ -34,6 +35,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => NotificationSettingsProvider()),
+        ChangeNotifierProvider(create: (_) => AppearanceProvider()),
       ],
       child: const Reciclapp(),
     ),
@@ -45,12 +47,15 @@ class Reciclapp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lang = context.watch<LanguageProvider>().language;
+    final langProvider = context.watch<LanguageProvider>();
+    final appearance = context.watch<AppearanceProvider>();
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Reciclapp - Híbrido',
-      locale: lang.locale,
+
+      // Idioma
+      locale: langProvider.language.locale,
       supportedLocales: const [
         Locale('es'),
         Locale('en'),
@@ -61,19 +66,45 @@ class Reciclapp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
+
+       // Apariencia
+  themeMode: appearance.flutterThemeMode,
+
+  theme: ThemeData(
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.green,
+      brightness: Brightness.light, 
+    ),
+    useMaterial3: true,
+  ),
+
+  darkTheme: ThemeData(
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.green,
+      brightness: Brightness.dark,  
+    ),
+    useMaterial3: true,
+  ),
+
+  builder: (context, child) {
+    final mediaQuery = MediaQuery.of(context);
+    return MediaQuery(
+      data: mediaQuery.copyWith(
+        textScaler: TextScaler.linear(appearance.textScale),
       ),
-      home: const SplashScreen(),
-      routes: {
-        "/login": (context) => const LoginScreen(),
-        "/home": (context) => const HomeScreen(),
-        "/detalle_reciclaje": (context) {
-          final docId = ModalRoute.of(context)!.settings.arguments as String;
-          return RecycleDetailScreen(docId: docId);
-        },
-      },
+      child: child!,
     );
-  }
+  },
+
+  home: const SplashScreen(),
+  routes: {
+    "/login": (context) => const LoginScreen(),
+    "/home": (context) => const HomeScreen(),
+    "/detalle_reciclaje": (context) {
+      final docId = ModalRoute.of(context)!.settings.arguments as String;
+      return RecycleDetailScreen(docId: docId);
+    },
+  },
+);
 }
+ }
