@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:reciclapp/ui/configuracion/language_provider.dart';
-import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
-// PROVIDER E IDIOMA
 import 'package:provider/provider.dart';
+
+import 'firebase_options.dart';
+
+// PROVIDERS
+import 'package:reciclapp/ui/configuracion/language_provider.dart';
+import 'package:reciclapp/ui/configuracion/notification_provider.dart';
 
 // TUS PANTALLAS
 import 'package:reciclapp/ui/home/splash_screen.dart';
@@ -21,8 +23,11 @@ void main() async {
   );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => LanguageProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationSettingsProvider()),
+      ],
       child: const Reciclapp(),
     ),
   );
