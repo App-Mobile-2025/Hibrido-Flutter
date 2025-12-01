@@ -15,7 +15,7 @@ class GestionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => GestionViewModel()
-        ..cargarPuntos()
+        ..cargarPuntos(context)
         ..cargarHistorial(),
       child: const _GestionBody(),
     );

@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:reciclapp/ui/configuracion/language_provider.dart';
-import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
-// PROVIDER E IDIOMA
 import 'package:provider/provider.dart';
+
+import 'package:reciclapp/ui/configuracion/appearance_provider.dart';
+import 'firebase_options.dart';
+
+// PROVIDERS
+import 'package:reciclapp/ui/configuracion/language_provider.dart';
+import 'package:reciclapp/ui/configuracion/notification_provider.dart';
+
+// NOTIFICATION SERVICE
+import 'package:reciclapp/data/services/notification_service.dart';
 
 // TUS PANTALLAS
 import 'package:reciclapp/ui/home/splash_screen.dart';
@@ -20,9 +26,17 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Inicializar notificaciones locales
+  await NotificationService().init();
+  await NotificationService().requestAndroidPermission();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => LanguageProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationSettingsProvider()),
+        ChangeNotifierProvider(create: (_) => AppearanceProvider()),
+      ],
       child: const Reciclapp(),
     ),
   );
@@ -33,17 +47,15 @@ class Reciclapp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Leemos el idioma actual del provider
-    final lang = context.watch<LanguageProvider>().language;
+    final langProvider = context.watch<LanguageProvider>();
+    final appearance = context.watch<AppearanceProvider>();
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Reciclapp - Híbrido',
 
-      // Idioma actual de la app
-      locale: lang.locale,
-
-      // Localizaciones básicas de Flutter (botones, fechas, etc.)
+      // Idioma
+      locale: langProvider.language.locale,
       supportedLocales: const [
         Locale('es'),
         Locale('en'),
@@ -55,21 +67,44 @@ class Reciclapp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
+       // Apariencia
+  themeMode: appearance.flutterThemeMode,
+
+  theme: ThemeData(
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.green,
+      brightness: Brightness.light, 
+    ),
+    useMaterial3: true,
+  ),
+
+  darkTheme: ThemeData(
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.green,
+      brightness: Brightness.dark,  
+    ),
+    useMaterial3: true,
+  ),
+
+  builder: (context, child) {
+    final mediaQuery = MediaQuery.of(context);
+    return MediaQuery(
+      data: mediaQuery.copyWith(
+        textScaler: TextScaler.linear(appearance.textScale),
       ),
-
-      home: const SplashScreen(),
-
-      routes: {
-        "/login": (context) => const LoginScreen(),
-        "/home": (context) => const HomeScreen(),
-        "/detalle_reciclaje": (context) {
-          final docId = ModalRoute.of(context)!.settings.arguments as String;
-          return RecycleDetailScreen(docId: docId);
-        },
-      },
+      child: child!,
     );
-  }
+  },
+
+  home: const SplashScreen(),
+  routes: {
+    "/login": (context) => const LoginScreen(),
+    "/home": (context) => const HomeScreen(),
+    "/detalle_reciclaje": (context) {
+      final docId = ModalRoute.of(context)!.settings.arguments as String;
+      return RecycleDetailScreen(docId: docId);
+    },
+  },
+);
 }
+ }
