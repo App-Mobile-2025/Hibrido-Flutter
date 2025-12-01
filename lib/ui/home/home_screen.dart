@@ -9,7 +9,7 @@ import '../register/registrar_reciclaje_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  //para poder acceder al state desde otros widgets (como Gestión)
+  // Para acceder al state desde otros widgets
   static _HomeScreenState? of(BuildContext context) =>
       context.findAncestorStateOfType<_HomeScreenState>();
 
@@ -20,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  // LISTA DE PÁGINAS
+  // Páginas de navegación
   final List<Widget> _pages = [
     const SizedBox.shrink(),
     const RegistrarReciclajeScreen(),
@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const ConfigScreen(),
   ];
 
-  // MEtodo para cambiar de pestaña desde otros widgets
+  // Permite cambiar la pestaña desde afuera
   void goToPage(int index) {
     setState(() {
       _currentIndex = index;
@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE8F5E9),
+
       appBar: AppBar(
         title: const Text('ReciclApp'),
         automaticallyImplyLeading: false,
@@ -52,17 +53,35 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
         onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-          BottomNavigationBarItem(icon: Icon(Icons.recycling), label: 'Registrar'),
-          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Gestión'),
-          BottomNavigationBarItem(icon: Icon(Icons.card_giftcard), label: 'Canje'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Config'),
+        items: [
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/icons/home.png', height: 26),
+            label: 'Inicio',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/icons/reciclaje.png', height: 26),
+            label: 'Registrar',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/icons/gestion.png', height: 26),
+            label: 'Gestión',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/icons/canje.png', height: 26),
+            label: 'Canje',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/icons/perfil.png', height: 26),
+            label: 'Perfil',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.tune),
+            label: 'Config',
+          ),
         ],
       ),
 
-      // BOTÓN FLOTANTE DE MUNDITO (BOT IA)
+      // BOTÓN FLOTANTE IA
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           showModalBottomSheet(
@@ -87,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // --------------------------
-  // HOME DASHBOARD
+  // HOME DASHBOARD CON PNG
   // --------------------------
   Widget _buildHomeDashboard() {
     return SingleChildScrollView(
@@ -105,6 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 24),
+
           GridView.count(
             crossAxisCount: 2,
             crossAxisSpacing: 16,
@@ -113,22 +133,22 @@ class _HomeScreenState extends State<HomeScreen> {
             physics: const NeverScrollableScrollPhysics(),
             children: [
               _HomeOptionCard(
-                icon: Icons.delete_outline,
+                iconPath: 'assets/icons/reciclaje.png',
                 label: 'Registrar\nresiduos',
                 onTap: () => setState(() => _currentIndex = 1),
               ),
               _HomeOptionCard(
-                icon: Icons.list_alt,
+                iconPath: 'assets/icons/gestion.png',
                 label: 'Gestión de\nreciclaje',
                 onTap: () => setState(() => _currentIndex = 2),
               ),
               _HomeOptionCard(
-                icon: Icons.card_giftcard,
+                iconPath: 'assets/icons/canje.png',
                 label: 'Canje',
                 onTap: () => setState(() => _currentIndex = 3),
               ),
               _HomeOptionCard(
-                icon: Icons.person_outline,
+                iconPath: 'assets/icons/perfil.png',
                 label: 'Perfil',
                 onTap: () => setState(() => _currentIndex = 4),
               ),
@@ -141,15 +161,15 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // ---------------------------------------------
-// CARD CON SOMBRA + ICONO SOMBREADO
+// CARD DEL DASHBOARD — AHORA CON PNG
 // ---------------------------------------------
 class _HomeOptionCard extends StatelessWidget {
-  final IconData icon;
+  final String iconPath;
   final String label;
   final VoidCallback onTap;
 
   const _HomeOptionCard({
-    required this.icon,
+    required this.iconPath,
     required this.label,
     required this.onTap,
   });
@@ -176,6 +196,7 @@ class _HomeOptionCard extends StatelessWidget {
           ],
         ),
         padding: const EdgeInsets.all(16),
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -193,18 +214,23 @@ class _HomeOptionCard extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: Colors.green.shade700,
+              child: Center(
+                child: Image.asset(
+                  iconPath,
+                  width: 52,
+                  height: 52,
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
+
             const SizedBox(height: 12),
+
             Text(
               label,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 17,
                 fontWeight: FontWeight.w600,
                 color: Colors.green,
               ),
