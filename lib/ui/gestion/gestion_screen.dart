@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'view_model/gestion_view_model.dart';
+import '../recycle_detail/recycle_detail_screen.dart'; // Asegurate que la ruta sea correcta
 import 'widgets/reciclaje_item.dart';
 import 'widgets/filtro_bottomsheet.dart';
+import 'widgets/header_gestion.dart';
 
 class GestionScreen extends StatelessWidget {
   const GestionScreen({super.key});
@@ -27,92 +29,64 @@ class _GestionBody extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+
       appBar: AppBar(
         title: const Text("Gestión de Reciclajes"),
       ),
 
       body: Column(
         children: [
-          // --- Bloque Puntos ---
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Card(
-              color: Colors.green.shade700,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    if (vm.loadingPoints)
-                      const CircularProgressIndicator(color: Colors.white)
-                    else
-                      Text(
-                        vm.puntos.toString(),
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 38,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      "Puntos disponibles",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, "/canje");
-                      },
-                      child: const Text("Ir a canje"),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(height: 8),
 
-          // --- Búsqueda y filtro ---
+          // HEADER
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: vm.inputBuscar,
-                    decoration: InputDecoration(
-                      hintText: "Buscar nota...",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: vm.buscarNota,
-                  child: const Text("Buscar"),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.filter_alt),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (_) => FiltroBottomsheet(
-                        seleccionInicial: const [],
-                        onAplicar: vm.aplicarFiltro,
-                      ),
-                    );
-                  },
-                ),
-              ],
+            child: HeaderGestion(
+              puntos: vm.puntos,
+              loading: vm.loadingPoints,
+              total: vm.historialOriginal.length,
+              aprobados: vm.historialOriginal
+                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "aprobado")
+                  .length,
+
+              pendientes: vm.historialOriginal
+                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "pendiente")
+                  .length,
+
+              rechazados: vm.historialOriginal
+                  .where((e) => (e.get("estado") ?? "").toString().toLowerCase() == "rechazado")
+                  .length,
+
+              onCanje: () {
+                Navigator.pushNamed(context, "/canje");
+              },
             ),
           ),
+
+          const SizedBox(height: 8),
+
+          // BUSCADOR Y FILTRO
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: BuscadorGestion(
+              controller: vm.inputBuscar,
+              onBuscar: vm.buscarNota,
+              onFiltro: () {
+                showModalBottomSheet(
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (_) => FiltroBottomsheet(
+                    seleccionInicial: vm.filtrosEstado,
+                    onAplicar: vm.aplicarFiltro,
+                  ),
+                );
+              },
+            ),
+          ),
+
           const SizedBox(height: 12),
 
-          // --- Historial ---
+          // LISTA
           Expanded(
             child: vm.loadingHistorial
                 ? const Center(child: CircularProgressIndicator())
@@ -121,21 +95,92 @@ class _GestionBody extends StatelessWidget {
                     itemCount: vm.historial.length,
                     itemBuilder: (_, i) {
                       final doc = vm.historial[i];
+
                       return ReciclajeItem(
                         doc: doc,
-                        onTap: () {
-                          Navigator.pushNamed(
+                        onTap: () async {
+                          final deleted = await Navigator.push(
                             context,
-                            "/detalle_reciclaje",
-                            arguments: doc,
+                            MaterialPageRoute(
+                              builder: (_) => RecycleDetailScreen(
+                                docId: doc.id,
+                              ),
+                            ),
                           );
+
+                          if (deleted == true || deleted == "updated") {
+                            vm.cargarHistorial();
+                          }
+
                         },
                       );
                     },
                   ),
-          )
+          ),
         ],
       ),
+    );
+  }
+}
+
+// BUSCADOR + FILTRO
+class BuscadorGestion extends StatelessWidget {
+  final TextEditingController controller;
+  final VoidCallback onBuscar;
+  final VoidCallback onFiltro;
+
+  const BuscadorGestion({
+    super.key,
+    required this.controller,
+    required this.onBuscar,
+    required this.onFiltro,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                )
+              ],
+            ),
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: "Buscar nota...",
+                border: InputBorder.none,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: onBuscar,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        GestureDetector(
+          onTap: onFiltro,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.green.shade600,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(Icons.filter_alt, color: Colors.white),
+          ),
+        ),
+      ],
     );
   }
 }

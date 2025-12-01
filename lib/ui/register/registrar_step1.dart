@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:reciclapp/ui/register/mapa/ecopuntos_ba.dart';
+import 'package:reciclapp/ui/register/mapa/ecopuntos_map.screan.dart';
 import 'package:reciclapp/ui/register/registrar_step2.dart';
 
 class RegistrarStep1Screen extends StatefulWidget {
@@ -10,7 +12,9 @@ class RegistrarStep1Screen extends StatefulWidget {
 
 class _RegistrarStep1ScreenState extends State<RegistrarStep1Screen> {
   final _ecopuntoController = TextEditingController();
-  
+
+  Ecopunto? _ecopuntoSeleccionado;
+
   final Map<String, bool> _materiales = {
     'Cartón': false,
     'Plástico': false,
@@ -28,6 +32,24 @@ class _RegistrarStep1ScreenState extends State<RegistrarStep1Screen> {
     'Vidrio': Icons.wine_bar,
     'Aceite': Icons.water_drop,
   };
+
+  Future<void> _abrirMapaEcopunto() async {
+    final resultado = await Navigator.push<Ecopunto>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const EcopuntoMapScreen(),
+      ),
+    );
+
+    if (resultado != null) {
+      setState(() {
+        _ecopuntoSeleccionado = resultado;
+        _ecopuntoController.text =
+            '${resultado.nombre} (${resultado.lat.toStringAsFixed(5)}, '
+            '${resultado.lng.toStringAsFixed(5)})';
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -125,9 +147,12 @@ class _RegistrarStep1ScreenState extends State<RegistrarStep1Screen> {
             const SizedBox(height: 12),
             TextField(
               controller: _ecopuntoController,
+              readOnly: true,
+              onTap: _abrirMapaEcopunto, // abre el mapa
               decoration: InputDecoration(
-                hintText: 'Ej: Ecopunto Plaza Central',
+                hintText: 'Tocá para elegir un Ecopunto en el mapa',
                 prefixIcon: const Icon(Icons.location_on, color: Colors.green),
+                suffixIcon: const Icon(Icons.map, color: Colors.green),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -138,9 +163,9 @@ class _RegistrarStep1ScreenState extends State<RegistrarStep1Screen> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: Colors.green.shade100),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.green, width: 2),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.green, width: 2),
                 ),
               ),
             ),
@@ -190,9 +215,8 @@ class _RegistrarStep1ScreenState extends State<RegistrarStep1Screen> {
                       color: seleccionado ? Colors.green : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: seleccionado
-                            ? Colors.green
-                            : Colors.green.shade100,
+                        color:
+                            seleccionado ? Colors.green : Colors.green.shade100,
                         width: 2,
                       ),
                       boxShadow: seleccionado

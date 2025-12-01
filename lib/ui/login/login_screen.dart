@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:reciclapp/data/services/auth_service.dart';
-import 'package:reciclapp/ui/home/home_screen.dart';
 import 'package:reciclapp/ui/register/register_screen.dart';
 import 'package:lottie/lottie.dart';
 
