@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
 import 'package:reciclapp/data/services/notification_service.dart';
-import 'package:reciclapp/ui/configuracion/notification_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/notification_provider.dart';
 import 'package:reciclapp/ui/gestion/notification/points_notification_manager.dart';
 
 class GestionViewModel extends ChangeNotifier {

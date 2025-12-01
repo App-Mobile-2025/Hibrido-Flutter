@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reciclapp/ui/configuracion/widgets/account_section.dart';
 import 'package:reciclapp/ui/configuracion/widgets/app_info_section.dart';
 
 // Secciones
@@ -36,7 +37,8 @@ class ConfigScreen extends StatelessWidget {
           AppInfoSection(),
           SizedBox(height: 16),
           LegalConfigSection(),
-
+          SizedBox(height: 16),
+          AccountConfigSection(),
 
         ],
       ),

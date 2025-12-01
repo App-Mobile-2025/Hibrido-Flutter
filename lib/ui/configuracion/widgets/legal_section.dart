@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:reciclapp/ui/configuracion/language_provider.dart';
-import 'package:reciclapp/ui/configuracion/notification_provider.dart';
-import 'package:reciclapp/ui/configuracion/appearance_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/language_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/notification_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/appearance_provider.dart';
 // agregá url_launcher en pubspec y descomentá:
 // import 'package:url_launcher/url_launcher.dart';
 

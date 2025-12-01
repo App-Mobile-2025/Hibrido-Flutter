@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:reciclapp/ui/configuracion/notification_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/notification_provider.dart';
 
 class NotificationsConfigSection extends StatelessWidget {
   const NotificationsConfigSection({super.key});

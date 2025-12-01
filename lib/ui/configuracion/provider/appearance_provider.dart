@@ -19,7 +19,7 @@ class AppearanceProvider extends ChangeNotifier {
   }
 
   void setTextScale(double scale) {
-    _textScale = scale.clamp(0.8, 1.4); // min 80%, max 140%
+    _textScale = scale.clamp(0.8, 1.4);
     notifyListeners();
   }
 

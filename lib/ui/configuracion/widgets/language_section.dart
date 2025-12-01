@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:reciclapp/ui/configuracion/language_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/language_provider.dart';
 
 class LanguageConfigSection extends StatelessWidget {
   const LanguageConfigSection({super.key});

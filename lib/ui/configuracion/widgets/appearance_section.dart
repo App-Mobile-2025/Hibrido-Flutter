@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:reciclapp/ui/configuracion/appearance_provider.dart';
+import 'package:reciclapp/ui/configuracion/provider/appearance_provider.dart';
 
 class AppearanceConfigSection extends StatelessWidget {
   const AppearanceConfigSection({super.key});
