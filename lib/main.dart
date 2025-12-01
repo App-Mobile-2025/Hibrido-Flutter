@@ -9,6 +9,9 @@ import 'firebase_options.dart';
 import 'package:reciclapp/ui/configuracion/language_provider.dart';
 import 'package:reciclapp/ui/configuracion/notification_provider.dart';
 
+// NOTIFICATION SERVICE
+import 'package:reciclapp/data/services/notification_service.dart';
+
 // TUS PANTALLAS
 import 'package:reciclapp/ui/home/splash_screen.dart';
 import 'package:reciclapp/ui/login/login_screen.dart';
@@ -21,6 +24,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Inicializar notificaciones locales
+  await NotificationService().init();
+  await NotificationService().requestAndroidPermission();
 
   runApp(
     MultiProvider(
@@ -38,17 +45,12 @@ class Reciclapp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Leemos el idioma actual del provider
     final lang = context.watch<LanguageProvider>().language;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Reciclapp - Híbrido',
-
-      // Idioma actual de la app
       locale: lang.locale,
-
-      // Localizaciones básicas de Flutter (botones, fechas, etc.)
       supportedLocales: const [
         Locale('es'),
         Locale('en'),
@@ -59,14 +61,11 @@ class Reciclapp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-
       home: const SplashScreen(),
-
       routes: {
         "/login": (context) => const LoginScreen(),
         "/home": (context) => const HomeScreen(),

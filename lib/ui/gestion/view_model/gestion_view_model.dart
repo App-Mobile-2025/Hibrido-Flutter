@@ -1,34 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+
+import 'package:reciclapp/data/services/notification_service.dart';
+import 'package:reciclapp/ui/configuracion/notification_provider.dart';
+import 'package:reciclapp/ui/gestion/notification/points_notification_manager.dart';
 
 class GestionViewModel extends ChangeNotifier {
   final _db = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
+  final PointsNotificationManager _pointsNotificationManager =
+      PointsNotificationManager(NotificationService());
+
   bool loadingPoints = false;
   int puntos = 0;
+
+  DateTime? puntosVencimiento;
 
   bool loadingHistorial = false;
   List<DocumentSnapshot> historial = [];
   List<DocumentSnapshot> historialOriginal = [];
 
   final inputBuscar = TextEditingController();
-
   List<String> filtrosEstado = [];
 
-  Future<void> cargarPuntos() async {
+  Future<void> cargarPuntos(BuildContext context) async {
     loadingPoints = true;
     notifyListeners();
 
     final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    if (uid == null) {
+      loadingPoints = false;
+      notifyListeners();
+      return;
+    }
 
-    final doc = await _db.collection("users").doc(uid).get();
-    puntos = (doc.data()?["puntos"] ?? 0) as int;
+    final docRef = _db.collection("users").doc(uid);
+    final doc = await docRef.get();
+
+    final data = doc.data() ?? {};
+
+    puntos = (data["puntos"] ?? 0) as int;
+
+    // leer vencimiento
+    final ts = data["puntosVencimiento"] as Timestamp?;
+    if (ts != null) {
+      puntosVencimiento = ts.toDate();
+    } else {
+      if (puntos > 0) {
+        final nuevaFecha = DateTime.now().add(const Duration(days: 30));
+        puntosVencimiento = nuevaFecha;
+
+        await docRef.update({
+          "puntosVencimiento": Timestamp.fromDate(nuevaFecha),
+        });
+      }
+    }
 
     loadingPoints = false;
     notifyListeners();
+
+    // --------------------------
+    // LÓGICA DE NOTIFICACIONES
+    // --------------------------
+    final notifSettings = context.read<NotificationSettingsProvider>();
+
+    await _pointsNotificationManager.procesarNotificaciones(
+      puntos: puntos,
+      puntosVencimiento: puntosVencimiento,
+      settings: notifSettings,
+    );
   }
 
   Future<void> cargarHistorial() async {
@@ -36,7 +79,11 @@ class GestionViewModel extends ChangeNotifier {
     notifyListeners();
 
     final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    if (uid == null) {
+      loadingHistorial = false;
+      notifyListeners();
+      return;
+    }
 
     final result = await _db
         .collection("reciclajes")
@@ -76,13 +123,13 @@ class GestionViewModel extends ChangeNotifier {
   }
 
   void aplicarFiltro(List<String> estados) {
-    filtrosEstado = estados; 
+    filtrosEstado = estados;
 
     if (estados.isEmpty) {
       historial = List.from(historialOriginal);
     } else {
       historial = historialOriginal.where((doc) {
-        final estado = (doc.get("estado") ?? "").toLowerCase().toString();
+        final estado = (doc.get("estado") ?? "").toString().toLowerCase();
         return estados.contains(estado);
       }).toList();
     }

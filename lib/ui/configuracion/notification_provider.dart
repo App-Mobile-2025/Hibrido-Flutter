@@ -10,7 +10,6 @@ class NotificationSettingsProvider extends ChangeNotifier {
   void setNotificationsEnabled(bool value) {
     _notificationsEnabled = value;
 
-    // Si apagás todas las notificaciones, opcionalmente apagamos también los recordatorios
     if (!value) {
       _pointsReminderEnabled = false;
     }
