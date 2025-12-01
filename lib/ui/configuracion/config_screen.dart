@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reciclapp/ui/configuracion/widgets/app_info_section.dart';
 
 // Secciones
 import 'package:reciclapp/ui/configuracion/widgets/appearance_section.dart';
@@ -25,14 +26,14 @@ class ConfigScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16),
-
           LanguageConfigSection(),
           SizedBox(height: 16),
-
           NotificationsConfigSection(),
           SizedBox(height: 16),
-
           AppearanceConfigSection(),
+          SizedBox(height: 16),
+          AppInfoSection(),
+
         ],
       ),
     );
