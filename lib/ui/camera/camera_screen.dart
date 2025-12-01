@@ -6,7 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:reciclapp/data/services/detector_service.dart';
+import 'package:reciclapp/data/services/native_detector_service.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -17,7 +17,7 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver {
   CameraController? _cameraController;
-  final DetectorService _detector = DetectorService();
+  final NativeDetectorService _detector = NativeDetectorService(); 
   
   List<BoundingBox> _currentDetections = [];
   bool _isAnalyzing = false;
@@ -31,13 +31,13 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     WidgetsBinding.instance.addObserver(this);
     _initializeCamera();
     _getLocation();
+    _checkDetectorReady(); 
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _cameraController?.dispose();
-    _detector.dispose();
     super.dispose();
   }
 
@@ -56,6 +56,17 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     }
   }
 
+  Future<void> _checkDetectorReady() async {
+    final ready = await _detector.isReady();
+    if (ready) {
+      print('✅ Detector nativo listo');
+    } else {
+      print('⏳ Detector nativo inicializando...');
+      // Reintentar después de 2 segundos
+      Future.delayed(const Duration(seconds: 2), _checkDetectorReady);
+    }
+  }
+
   Future<void> _initializeCamera() async {
     try {
       final cameras = await availableCameras();
@@ -69,9 +80,6 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
         (camera) => camera.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
       );
-
-      // Inicializar detector PRIMERO
-      await _detector.setup();
 
       // Configuración SIMPLE de cámara
       _cameraController = CameraController(
@@ -106,7 +114,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       final XFile photo = await _cameraController!.takePicture();
       
       debugPrint('✅ Foto capturada: ${photo.path}');
-      
+
       // Cargar imagen
       final bytes = await photo.readAsBytes();
       final image = img.decodeImage(bytes);
@@ -120,13 +128,8 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
 
       debugPrint('✅ Imagen decodificada: ${image.width}x${image.height}');
 
-      // Detectar
-      final stopwatch = Stopwatch()..start();
-      final result = await _detector.detect(image);
-      stopwatch.stop();
-
-      debugPrint('✅ Detección completada en ${stopwatch.elapsedMilliseconds}ms');
-      debugPrint('   Detecciones encontradas: ${result.boxes.length}');
+      // Llamar al detector NATIVO
+      final result = await _detector.detectFromPath(photo.path);
 
       if (mounted) {
         setState(() {
@@ -237,8 +240,8 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
 
     final clasificacion = _clasificarDetecciones(_currentDetections);
 
-    await FirebaseFirestore.instance.collection('capturas').add({
-      'userId': user.uid,
+    await FirebaseFirestore.instance.collection('evidencias').add({
+      'uid': user.uid,  
       'imagePath': imageFile.path,
       'detecciones': deteccionesInfo,
       'timestamp': FieldValue.serverTimestamp(),
@@ -320,7 +323,6 @@ Widget build(BuildContext context) {
     body: Stack(
       fit: StackFit.expand,
       children: [
-        // Preview ARREGLADO - Sin estirar
         Center(
           child: AspectRatio(
             aspectRatio: 1 / _cameraController!.value.aspectRatio,
@@ -338,13 +340,13 @@ Widget build(BuildContext context) {
             ),
           ),
 
-        // Header
+        // Header, boton a la izq, contador a la der
         SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
               children: [
-                // Botón cerrar a la izquierda
+                // Botón 
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.5),
@@ -356,7 +358,7 @@ Widget build(BuildContext context) {
                   ),
                 ),
                 const Spacer(),
-                // Contador de detecciones a la derecha
+                // Contador 
                 if (_currentDetections.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -451,7 +453,6 @@ Widget build(BuildContext context) {
 }
 }
 
-// Painter super simple
 class SimpleBoundingBoxPainter extends CustomPainter {
   final List<BoundingBox> detections;
 
@@ -474,7 +475,6 @@ class SimpleBoundingBoxPainter extends CustomPainter {
 
       canvas.drawRect(rect, paint);
 
-      // Texto
       final textPainter = TextPainter(
         text: TextSpan(
           text: '${box.className} ${(box.confidence * 100).toInt()}%',

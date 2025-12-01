@@ -26,9 +26,8 @@ dependencies:
   lottie: ^3.1.0
   provider: ^6.1.2
 
-   # IA de Firebase (Gemini / Vertex AI)
+  # IA de Firebase (Gemini / Vertex AI)
   firebase_ai: ^3.6.0
-  tflite_flutter: ^0.12.1
   camera: ^0.11.3
   image: ^4.1.3
   permission_handler: ^12.0.1
@@ -42,7 +41,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
 
 flutter:
@@ -56,9 +54,7 @@ flutter:
     - assets/register.json
     - assets/mundito_icon.png
     - assets/mundito_icon_v2.png
-    - assets/model.tflite
-    - assets/labels.txt
-
+    
 flutter_launcher_icons:
   android: true
   ios: true

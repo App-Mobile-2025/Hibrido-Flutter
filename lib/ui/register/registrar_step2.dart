@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:reciclapp/ui/camera/camera_screen.dart';
 import 'package:reciclapp/ui/register/confirmacion_screen.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -113,13 +112,6 @@ class _RegistrarStep2ScreenState extends State<RegistrarStep2Screen> {
     } catch (e) {
       _mostrarError('Error al tomar foto: $e');
     }
-  }
-
-  void _abrirCamaraIA() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const CameraScreen()),
-    );
   }
 
   // ==========================
