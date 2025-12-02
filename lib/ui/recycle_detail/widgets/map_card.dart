@@ -5,7 +5,11 @@ class MapCardWidget extends StatelessWidget {
   final LatLng coords;
   final String ecopunto;
 
-  const MapCardWidget({super.key, required this.coords, required this.ecopunto});
+  const MapCardWidget({
+    super.key,
+    required this.coords,
+    required this.ecopunto,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,29 +25,40 @@ class MapCardWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Ubicación:", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  "Ubicación:",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 4),
                 Text(ecopunto),
               ],
             ),
           ),
+
           SizedBox(
             height: 250,
-            width: double.infinity, 
-            /*child: GoogleMap(
-              initialCameraPosition: CameraPosition(target: coords, zoom: 15),
+            width: double.infinity,
+            child: GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: coords,
+                zoom: 16,
+              ),
               markers: {
                 Marker(
                   markerId: const MarkerId("ecopunto"),
                   position: coords,
-                  infoWindow: InfoWindow(title: ecopunto),
                 ),
               },
+
               zoomControlsEnabled: false,
               scrollGesturesEnabled: false,
-              tiltGesturesEnabled: false,
               rotateGesturesEnabled: false,
-            ),*/
+              tiltGesturesEnabled: false,
+              zoomGesturesEnabled: false,
+              myLocationEnabled: false,
+              myLocationButtonEnabled: false,
+              mapToolbarEnabled: false,
+            ),
           ),
         ],
       ),
